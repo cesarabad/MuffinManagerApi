@@ -15,6 +15,8 @@ import com.muffinmanager.api.muffinmanagerapi.model.User.database.permissions.Gr
 import com.muffinmanager.api.muffinmanagerapi.model.User.database.permissions.PermissionEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
@@ -30,6 +32,7 @@ import jakarta.persistence.Table;
 public class UserEntity implements UserDetails{
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     
     @Column(name = "dni", length = 9, nullable = false, unique = true)

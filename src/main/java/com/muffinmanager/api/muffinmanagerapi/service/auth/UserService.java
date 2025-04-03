@@ -31,21 +31,9 @@ public class UserService implements IUserService{
 
     @Override
     public LoginResponse login(LoginRequest request) {
-        
-        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(request.getDni(), request.getPassword());
-        authenticationManager.authenticate(authToken);
-         
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getDni(), request.getPassword())); 
         UserEntity user = userRepository.findByDni(request.getDni()).orElseThrow();
-        
-            
-        String token = jwtService.getToken(user);
-        return LoginResponse.builder()
-            .dni(user.getDni())
-            .name(user.getName())
-            .secondName(user.getSecondName())
-            .permissions(user.getPermissionStrings())
-            .token(token)
-            .build();
+        return generateLoginResponse(user);
     }
 
     @Override
@@ -59,7 +47,16 @@ public class UserService implements IUserService{
             .permissions(new HashSet<>())
             .build();
         userRepository.save(user);
+        return generateLoginResponse(user);
+    }
+
+    private LoginResponse generateLoginResponse(UserEntity user) {
         return LoginResponse.builder()
+            .id(user.getId())
+            .dni(user.getDni())
+            .name(user.getName())
+            .secondName(user.getSecondName())
+            .permissions(user.getPermissionStrings())
             .token(jwtService.getToken(user))
             .build();
     }
