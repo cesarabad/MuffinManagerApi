@@ -4,6 +4,8 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+/src/main/java/com/muffinmanager/api/muffinmanagerapi/controller/TestController.java
+
 ### STS ###
 .apt_generated
 .classpath
