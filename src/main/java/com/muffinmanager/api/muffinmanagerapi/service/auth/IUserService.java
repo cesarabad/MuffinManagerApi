@@ -5,10 +5,10 @@ import java.util.List;
 import com.muffinmanager.api.muffinmanagerapi.model.User.LoginRequest;
 import com.muffinmanager.api.muffinmanagerapi.model.User.LoginResponse;
 import com.muffinmanager.api.muffinmanagerapi.model.User.RegisterRequest;
-import com.muffinmanager.api.muffinmanagerapi.model.User.dto.UserListDto;
+import com.muffinmanager.api.muffinmanagerapi.model.User.dto.UserSafeDto;
 
 public interface IUserService {
     public LoginResponse login(LoginRequest request);
     public LoginResponse register(RegisterRequest request);
-    public List<UserListDto> getAllUsers();
+    public List<UserSafeDto> getAllUsers();
 }

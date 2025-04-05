@@ -1,6 +1,9 @@
 package com.muffinmanager.api.muffinmanagerapi.model.MuffinShape.database;
 
 import java.sql.Timestamp;
+
+import com.muffinmanager.api.muffinmanagerapi.model.MuffinShape.dto.MuffinShapeDetailedDto;
+import com.muffinmanager.api.muffinmanagerapi.model.MuffinShape.dto.MuffinShapeListDto;
 import com.muffinmanager.api.muffinmanagerapi.model.User.database.UserEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -21,7 +24,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "muffinshape")
-public class MuffinShapeEntity {
+public class MuffinShapeEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -42,4 +45,45 @@ public class MuffinShapeEntity {
     @ManyToOne
     @JoinColumn(name = "lastmodifyuser")
     private UserEntity lastModifyUser;
+
+    public MuffinShapeDetailedDto toDetaliedDto() {
+        return new MuffinShapeDetailedDto( 
+            shapeReference, 
+            description, 
+            version,
+            id,
+            startDate.toLocalDateTime(), 
+            endDate != null ?
+                endDate.toLocalDateTime() : 
+                null,
+            isObsolete, 
+            lastModifyUser != null ?
+                lastModifyUser.toSafeDto() : 
+                null);
+    }
+
+    public MuffinShapeListDto toListDto() {
+        return new MuffinShapeListDto(
+            shapeReference, 
+            description,
+            version,
+            id, 
+            isObsolete, 
+            lastModifyUser != null ?
+                lastModifyUser.toSafeDto() : 
+                null);
+    }
+
+    public MuffinShapeEntity clone() {
+        return MuffinShapeEntity.builder()
+            .shapeReference(this.shapeReference)
+            .description(this.description)
+            .version(this.version)
+            .startDate(this.startDate)
+            .endDate(this.endDate)
+            .isActive(this.isActive)
+            .isObsolete(this.isObsolete)
+            .lastModifyUser(this.lastModifyUser != null ? this.lastModifyUser : null)
+            .build();
+    }
 }

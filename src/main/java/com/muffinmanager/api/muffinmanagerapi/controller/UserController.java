@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.muffinmanager.api.muffinmanagerapi.model.User.LoginRequest;
 import com.muffinmanager.api.muffinmanagerapi.model.User.LoginResponse;
 import com.muffinmanager.api.muffinmanagerapi.model.User.RegisterRequest;
-import com.muffinmanager.api.muffinmanagerapi.model.User.dto.UserListDto;
+import com.muffinmanager.api.muffinmanagerapi.model.User.dto.UserSafeDto;
 import com.muffinmanager.api.muffinmanagerapi.service.auth.IUserService;
 
 @RestController
@@ -58,7 +58,7 @@ public class UserController {
 
 
     @GetMapping("/all") 
-    public ResponseEntity<List<UserListDto>> getAllUsers() {
+    public ResponseEntity<List<UserSafeDto>> getAllUsers() {
         try {
             return ResponseEntity.ok(userService.getAllUsers());
         } catch (Exception e) {

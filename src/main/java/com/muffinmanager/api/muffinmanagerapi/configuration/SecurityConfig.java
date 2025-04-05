@@ -11,6 +11,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.muffinmanager.api.muffinmanagerapi.jwt.JwtAutenticationFilter;
+import com.muffinmanager.api.muffinmanagerapi.model.User.database.permissions.Permissions;
 
 @Configuration
 public class SecurityConfig {
@@ -30,6 +31,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/user/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/user/register").permitAll()
                         .requestMatchers(HttpMethod.GET, "/test/get").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/manage/**").hasRole(Permissions.manage_data.name())
+                        .requestMatchers(HttpMethod.PATCH, "/manage/**").hasRole(Permissions.manage_data.name())
+                        .requestMatchers(HttpMethod.GET, "/manage/muffin-shape/**").hasAnyRole(Permissions.get_muffin_shapes.name(), Permissions.manage_data.name())
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

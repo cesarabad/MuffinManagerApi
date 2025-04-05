@@ -14,14 +14,18 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.Getter;
 
 @Component
+@Getter
 public class JwtAutenticationFilter extends OncePerRequestFilter{
 
     @Autowired
     private IJwtService jwtService;
     @Autowired
     private UserDetailsService userDetailsService;
+
+    private String token;
 
     @SuppressWarnings("null")
     @Override
@@ -58,7 +62,7 @@ public class JwtAutenticationFilter extends OncePerRequestFilter{
     private String getTokenFromRequest(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7);
+            return token = bearerToken.substring(7);
         }
         return null;
     }

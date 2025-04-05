@@ -14,7 +14,7 @@ import com.muffinmanager.api.muffinmanagerapi.model.User.LoginRequest;
 import com.muffinmanager.api.muffinmanagerapi.model.User.LoginResponse;
 import com.muffinmanager.api.muffinmanagerapi.model.User.RegisterRequest;
 import com.muffinmanager.api.muffinmanagerapi.model.User.database.UserEntity;
-import com.muffinmanager.api.muffinmanagerapi.model.User.dto.UserListDto;
+import com.muffinmanager.api.muffinmanagerapi.model.User.dto.UserSafeDto;
 import com.muffinmanager.api.muffinmanagerapi.repository.IUserRepository;
 
 @Service
@@ -62,9 +62,9 @@ public class UserService implements IUserService{
     }
 
     @Override
-    public List<UserListDto> getAllUsers() {
+    public List<UserSafeDto> getAllUsers() {
         List<UserEntity> users = (List<UserEntity>) userRepository.findAll();
-        return users.stream().map(user -> UserListDto.builder()
+        return users.stream().map(user -> UserSafeDto.builder()
             .id(user.getId())
             .dni(user.getDni())
             .name(user.getName())

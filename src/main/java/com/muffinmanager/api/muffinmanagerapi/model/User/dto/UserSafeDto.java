@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserListDto {
+public class UserSafeDto {
     private int id;
     private String dni;
     private String name;

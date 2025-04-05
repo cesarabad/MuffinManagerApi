@@ -23,9 +23,7 @@ public class JwtService implements IJwtService {
 
     @Override
     public String getToken(UserDetails user) {
-        HashMap<String, Object> claims = new HashMap<>();
-        claims.put("roles", user.getAuthorities());
-        return getToken(claims, user);
+        return getToken(new HashMap<>(), user);
     }
 
     private String getToken(Map<String, Object> claims, UserDetails user) {
@@ -34,7 +32,7 @@ public class JwtService implements IJwtService {
             .setClaims(claims)
             .setSubject(user.getUsername())
             .setIssuedAt(new Date(System.currentTimeMillis()))
-            .setExpiration(new Date(System.currentTimeMillis()+1000*60*60*10)) // 10 hours
+            .setExpiration(new Date(System.currentTimeMillis()+1000*60*60*12)) // 12 hours
             .signWith(getKey(), SignatureAlgorithm.HS256)
             .compact();
     }
