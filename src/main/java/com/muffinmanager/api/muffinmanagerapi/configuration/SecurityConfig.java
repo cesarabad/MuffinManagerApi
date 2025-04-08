@@ -33,6 +33,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/test/get").permitAll()
                         .requestMatchers(HttpMethod.POST, "/manage/**").hasRole(Permissions.manage_data.name())
                         .requestMatchers(HttpMethod.PATCH, "/manage/**").hasRole(Permissions.manage_data.name())
+                        .requestMatchers(HttpMethod.DELETE, "/manage/**").hasRole(Permissions.manage_data.name())
                         .requestMatchers(HttpMethod.GET, "/manage/muffin-shape/**").hasAnyRole(Permissions.get_muffin_shapes.name(), Permissions.manage_data.name())
                         .anyRequest().authenticated()
                 )

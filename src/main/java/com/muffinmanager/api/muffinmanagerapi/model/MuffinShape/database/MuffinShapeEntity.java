@@ -2,8 +2,7 @@ package com.muffinmanager.api.muffinmanagerapi.model.MuffinShape.database;
 
 import java.sql.Timestamp;
 
-import com.muffinmanager.api.muffinmanagerapi.model.MuffinShape.dto.MuffinShapeDetailedDto;
-import com.muffinmanager.api.muffinmanagerapi.model.MuffinShape.dto.MuffinShapeListDto;
+import com.muffinmanager.api.muffinmanagerapi.model.MuffinShape.dto.MuffinShapeDto;
 import com.muffinmanager.api.muffinmanagerapi.model.User.database.UserEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -32,43 +31,21 @@ public class MuffinShapeEntity{
     private String shapeReference;
     @Column(name = "description", length = 80, nullable = false)
     private String description;
-    @Column(name = "version", nullable = false)
-    private int version;
-    @Column(name = "startdate", nullable = false)
-    private Timestamp startDate;
-    @Column(name = "enddate")
-    private Timestamp endDate;
-    @Column(name = "isactive", nullable = false)
-    private boolean isActive;
-    @Column(name = "isobsolete", nullable = false)
-    private boolean isObsolete;
+    @Column(name = "lastmodifydate", nullable = false)
+    private Timestamp lastModifyDate;
     @ManyToOne
-    @JoinColumn(name = "lastmodifyuser")
+    @JoinColumn(name = "lastmodifyuserid")
     private UserEntity lastModifyUser;
 
-    public MuffinShapeDetailedDto toDetaliedDto() {
-        return new MuffinShapeDetailedDto( 
-            shapeReference, 
-            description, 
-            version,
-            id,
-            startDate.toLocalDateTime(), 
-            endDate != null ?
-                endDate.toLocalDateTime() : 
-                null,
-            isObsolete, 
-            lastModifyUser != null ?
-                lastModifyUser.toSafeDto() : 
-                null);
-    }
 
-    public MuffinShapeListDto toListDto() {
-        return new MuffinShapeListDto(
+    public MuffinShapeDto toDto() {
+        return new MuffinShapeDto(
+            id, 
             shapeReference, 
             description,
-            version,
-            id, 
-            isObsolete, 
+            lastModifyDate != null ? 
+                lastModifyDate.toLocalDateTime() : 
+                null,
             lastModifyUser != null ?
                 lastModifyUser.toSafeDto() : 
                 null);
@@ -78,11 +55,7 @@ public class MuffinShapeEntity{
         return MuffinShapeEntity.builder()
             .shapeReference(this.shapeReference)
             .description(this.description)
-            .version(this.version)
-            .startDate(this.startDate)
-            .endDate(this.endDate)
-            .isActive(this.isActive)
-            .isObsolete(this.isObsolete)
+            .lastModifyDate(this.lastModifyDate != null ? this.lastModifyDate : null)
             .lastModifyUser(this.lastModifyUser != null ? this.lastModifyUser : null)
             .build();
     }
