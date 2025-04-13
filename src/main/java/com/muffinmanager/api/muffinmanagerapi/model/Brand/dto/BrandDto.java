@@ -1,4 +1,4 @@
-package com.muffinmanager.api.muffinmanagerapi.model.Box;
+package com.muffinmanager.api.muffinmanagerapi.model.Brand.dto;
 
 import java.time.LocalDateTime;
 
@@ -17,14 +17,17 @@ import lombok.Setter;
 @Data
 @Getter
 @Setter
-public class BoxDto {
-    
+public class BrandDto {
+ 
     private int id;
     private String reference;
-    private String description;
-    private Integer europeanBase;
-    private Integer americanBase;
-    private Integer defaultHeight;
+    private String name;
+    private String logoBase64;
+    private int version;
+    private String aliasVersion;
+    private LocalDateTime creationDate;
+    private LocalDateTime endDate;
+    private boolean isObsolete;
     private LocalDateTime lastModifyDate;
     private UserSafeDto lastModifyUser;
 }

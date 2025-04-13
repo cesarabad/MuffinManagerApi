@@ -2,7 +2,7 @@ package com.muffinmanager.api.muffinmanagerapi.model.Box.Database;
 
 import java.sql.Timestamp;
 
-import com.muffinmanager.api.muffinmanagerapi.model.Box.BoxDto;
+import com.muffinmanager.api.muffinmanagerapi.model.Box.dto.BoxDto;
 import com.muffinmanager.api.muffinmanagerapi.model.User.database.UserEntity;
 
 import jakarta.persistence.Column;

@@ -13,6 +13,7 @@ import com.muffinmanager.api.muffinmanagerapi.jwt.IJwtService;
 import com.muffinmanager.api.muffinmanagerapi.jwt.JwtAutenticationFilter;
 import com.muffinmanager.api.muffinmanagerapi.model.MuffinShape.dto.MuffinShapeDto;
 import com.muffinmanager.api.muffinmanagerapi.model.User.dto.UserSafeDto;
+import com.muffinmanager.api.muffinmanagerapi.model.WSMessage.WebSocketMessage;
 import com.muffinmanager.api.muffinmanagerapi.repository.IUserRepository;
 import com.muffinmanager.api.muffinmanagerapi.service.MuffinShape.IMuffinShapeService;
 
@@ -47,7 +48,7 @@ public class MuffinShapeController implements GenericController<MuffinShapeDto> 
     public ResponseEntity<Void> deleteById(int id) {
         muffinShapeService.deleteById(id);
         UserSafeDto user = userRepository.findByDni(jwtService.getDniFromToken(jwtFilter.getToken())).orElseThrow().toSafeDto();
-        messagingTemplate.convertAndSend("/topic/global", "Una forma ha sido eliminada por " + user.getName() + " " + user.getSecondName());  
+        messagingTemplate.convertAndSend("/topic/global", WebSocketMessage.builder().dictionaryKey("ws.muffinShape.deleted").user(user).build());  
         messagingTemplate.convertAndSend("/topic" + BASE_URL, id);
         return ResponseEntity.ok().build();
     }
@@ -56,8 +57,8 @@ public class MuffinShapeController implements GenericController<MuffinShapeDto> 
     public ResponseEntity<MuffinShapeDto> insert(MuffinShapeDto entityDto) {
         MuffinShapeDto createdEntity = muffinShapeService.insert(entityDto);
         UserSafeDto user = userRepository.findByDni(jwtService.getDniFromToken(jwtFilter.getToken())).orElseThrow().toSafeDto();
-        messagingTemplate.convertAndSend("/topic/global", "Una forma ha sido creada por " + user.getName() + " " + user.getSecondName());  
-        messagingTemplate.convertAndSend("/topic" + BASE_URL, createdEntity);
+        messagingTemplate.convertAndSend("/topic/global", WebSocketMessage.builder().dictionaryKey("ws.muffinShape.created").user(user).build());  
+        messagingTemplate.convertAndSend("/topic" + BASE_URL, entityDto);
         return ResponseEntity.ok(createdEntity);
     }
 
@@ -65,8 +66,8 @@ public class MuffinShapeController implements GenericController<MuffinShapeDto> 
     public ResponseEntity<MuffinShapeDto> update(MuffinShapeDto entityDto) {
         MuffinShapeDto updatedEntity = muffinShapeService.update(entityDto);
         UserSafeDto user = userRepository.findByDni(jwtService.getDniFromToken(jwtFilter.getToken())).orElseThrow().toSafeDto();
-        messagingTemplate.convertAndSend("/topic/global", "Una forma ha sido actualizada por " + user.getName() + " " + user.getSecondName());  
-        messagingTemplate.convertAndSend("/topic" + BASE_URL, updatedEntity);
+        messagingTemplate.convertAndSend("/topic/global", WebSocketMessage.builder().dictionaryKey("ws.muffinShape.updated").user(user).build());  
+        messagingTemplate.convertAndSend("/topic" + BASE_URL, entityDto);
         return ResponseEntity.ok(updatedEntity);
     }
     

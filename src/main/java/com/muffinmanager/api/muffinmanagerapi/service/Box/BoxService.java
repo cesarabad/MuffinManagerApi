@@ -12,8 +12,8 @@ import org.springframework.stereotype.Service;
 
 import com.muffinmanager.api.muffinmanagerapi.jwt.IJwtService;
 import com.muffinmanager.api.muffinmanagerapi.jwt.JwtAutenticationFilter;
-import com.muffinmanager.api.muffinmanagerapi.model.Box.BoxDto;
 import com.muffinmanager.api.muffinmanagerapi.model.Box.Database.BoxEntity;
+import com.muffinmanager.api.muffinmanagerapi.model.Box.dto.BoxDto;
 import com.muffinmanager.api.muffinmanagerapi.repository.IBoxRepository;
 import com.muffinmanager.api.muffinmanagerapi.repository.IUserRepository;
 
