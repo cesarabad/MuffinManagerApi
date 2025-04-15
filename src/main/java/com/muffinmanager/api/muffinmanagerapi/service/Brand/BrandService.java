@@ -61,6 +61,7 @@ public class BrandService implements IBrandService {
     public BrandDto update(BrandDto entityDto) {
         BrandEntity brandEntity = brandRepository.findById(entityDto.getId()).orElse(null);
         if (brandEntity != null) {
+            brandEntity.setBrandReference(entityDto.getReference());
             brandEntity.setName(entityDto.getName());
             brandEntity.setLogo(entityDto.getLogoBase64() != null ? Base64.getDecoder().decode(entityDto.getLogoBase64()) : null);
             brandEntity.setAliasVersion(entityDto.getAliasVersion());
