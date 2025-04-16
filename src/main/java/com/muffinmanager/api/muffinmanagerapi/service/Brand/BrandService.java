@@ -54,6 +54,7 @@ public class BrandService implements IBrandService {
         BrandEntity brandEntity = getEntityByDto(entityDto);
         brandEntity.setVersion(brandRepository.findHighestVersionByReference(entityDto.getReference()).orElse(0) + 1);
         brandEntity.setObsolete(false);
+        brandEntity.setEndDate(null);
         return brandRepository.save(brandEntity).toDto();
     }
 
@@ -65,7 +66,7 @@ public class BrandService implements IBrandService {
             brandEntity.setName(entityDto.getName());
             brandEntity.setLogo(entityDto.getLogoBase64() != null ? Base64.getDecoder().decode(entityDto.getLogoBase64()) : null);
             brandEntity.setAliasVersion(entityDto.getAliasVersion());
-            brandEntity.setCreationDate(entityDto.getCreationDate() != null ? Timestamp.valueOf(entityDto.getCreationDate()) : brandEntity.getCreationDate());
+            brandEntity.setCreationDate(brandEntity.getCreationDate() != null ? brandEntity.getCreationDate() : Timestamp.valueOf(LocalDateTime.now()));
             brandEntity.setEndDate(entityDto.isObsolete() 
                 ? (entityDto.getEndDate() == null ? Timestamp.valueOf(LocalDateTime.now()) : Timestamp.valueOf(entityDto.getEndDate())) 
                 : null);
@@ -113,7 +114,6 @@ public class BrandService implements IBrandService {
     @Override
     public void deleteByReference(String reference) {
         List<BrandEntity> brandsToDelete = brandRepository.findByBrandReference(reference).orElse(new ArrayList<>()).stream()
-            .filter(brandEntity -> brandEntity.getBrandReference().equals(reference))
             .collect(Collectors.toList());
         brandRepository.deleteAll(brandsToDelete);
     }

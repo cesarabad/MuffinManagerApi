@@ -55,7 +55,11 @@ public class BrandController implements GenericVersionController<BrandDto> {
 
     @Override
     public ResponseEntity<BrandDto> insert(BrandDto entityDto) {
-        return ResponseEntity.ok(brandService.insert(entityDto));
+        BrandDto createdEntity = brandService.insert(entityDto);
+        UserSafeDto user = userRepository.findByDni(jwtService.getDniFromToken(jwtFilter.getToken())).orElseThrow().toSafeDto();
+        messagingTemplate.convertAndSend("/topic/global", WebSocketMessage.builder().dictionaryKey("ws.brand.created").user(user).build());
+        messagingTemplate.convertAndSend("/topic" + BASE_URL, entityDto.getId());
+        return ResponseEntity.ok(createdEntity);
     }
 
     @Override
