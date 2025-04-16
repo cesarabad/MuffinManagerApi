@@ -17,9 +17,10 @@ public interface GenericVersionController<TDto> extends GenericController<TDto> 
     @DeleteMapping("/delete/{reference}")
     public ResponseEntity<Void> deleteByReference(@PathVariable String reference);
 
-    @PostMapping("/changeReference")
+    /*@PostMapping("/changeReference")
     public ResponseEntity<List<TDto>> changeReference(@PathParam("oldReference") String oldReference, @PathParam("newReference") String newReference);
-
+    */
+    
     @PostMapping("/setObsolete/{reference}")
     public ResponseEntity<Void> setObsoleteByReference(@PathVariable String reference, @PathParam("obsolete") boolean obsolete);
 

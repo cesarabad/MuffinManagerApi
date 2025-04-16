@@ -80,13 +80,13 @@ public class BrandController implements GenericVersionController<BrandDto> {
         return ResponseEntity.ok().build();
     }
 
-    @Override
+    /*@Override
     public ResponseEntity<List<BrandDto>> changeReference(String oldReference, String newReference) {
         UserSafeDto user = userRepository.findByDni(jwtService.getDniFromToken(jwtFilter.getToken())).orElseThrow().toSafeDto();
         messagingTemplate.convertAndSend("/topic/global", WebSocketMessage.builder().dictionaryKey("ws.brand.updated").user(user).build());  
         messagingTemplate.convertAndSend("/topic" + BASE_URL, oldReference + "->" + newReference);
         return ResponseEntity.ok(brandService.changeReference(oldReference, newReference));
-    }
+    }*/
 
     @Override
     public ResponseEntity<Void> setObsoleteByReference(String reference, boolean obsolete) {

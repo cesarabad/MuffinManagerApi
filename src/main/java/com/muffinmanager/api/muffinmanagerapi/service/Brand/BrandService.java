@@ -118,7 +118,7 @@ public class BrandService implements IBrandService {
         brandRepository.deleteAll(brandsToDelete);
     }
 
-    @Override
+    /*@Override
     public List<BrandDto> changeReference(String oldReference, String newReference) {
         List<BrandEntity> brandsToChange = brandRepository.findByBrandReference(oldReference).orElse(new ArrayList<>());
         if (!brandsToChange.isEmpty()) {
@@ -126,7 +126,7 @@ public class BrandService implements IBrandService {
             brandRepository.saveAll(brandsToChange);
         }
         return brandsToChange.stream().map(BrandEntity::toDto).collect(Collectors.toList());
-    }
+    }*/
 
     @Override
     public void setObsoleteByReference(String reference, boolean obsolete) {
