@@ -19,7 +19,9 @@ public class ProductDto {
     private int id;
     private String reference;
     private Integer boxId;
+    private String boxInfo;
     private Integer productItemId;
+    private String productItemInfo;
     private Integer itemsPerProduct;
     private String ean14;
     private int version;

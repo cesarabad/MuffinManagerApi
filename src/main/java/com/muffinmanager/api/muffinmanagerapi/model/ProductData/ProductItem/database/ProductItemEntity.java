@@ -38,8 +38,6 @@ public class ProductItemEntity {
     @JoinColumn(name = "brandid")
     @ManyToOne
     private BrandEntity brand;
-    @Column(name="maindescription", length = 80)
-    private String mainDescription;
     @Column(name = "ean13", length = 13)
     private String ean13;
     @Column(name="version", nullable = false)
@@ -63,8 +61,13 @@ public class ProductItemEntity {
             .id(id)
             .reference(itemReference)
             .baseProductItemId(baseProductItem != null ? baseProductItem.getId() : null)
+            .productItemInfo(getItemReference() + " - " + 
+                getBaseProductItem().getMuffinShape().getDescription() + " "
+                + (getBaseProductItem().getMainDescription() != null 
+                    ? getBaseProductItem().getMainDescription() + " " : "")
+                + getBaseProductItem().getUnitsPerItem() + " UDS "
+                + (getBrand() != null ? getBrand().getName() : ""))
             .brandId(brand != null ? brand.getId() : null)
-            .mainDescription(mainDescription)
             .ean13(ean13)
             .version(version)
             .aliasVersion(aliasVersion)
@@ -73,6 +76,22 @@ public class ProductItemEntity {
             .isObsolete(isObsolete)
             .lastModifyDate(lastModifyDate != null ? lastModifyDate.toLocalDateTime() : null)
             .lastModifyUser(lastModifyUser != null ? lastModifyUser.toSafeDto() : null)
+            .build();
+    }
+
+    public ProductItemEntity clone() {
+        return ProductItemEntity.builder()
+            .itemReference(this.itemReference)
+            .baseProductItem(this.baseProductItem)
+            .brand(this.brand)
+            .ean13(this.ean13)
+            .version(this.version)
+            .aliasVersion(this.aliasVersion)
+            .creationDate(this.creationDate)
+            .endDate(this.endDate)
+            .isObsolete(this.isObsolete)
+            .lastModifyDate(this.lastModifyDate)
+            .lastModifyUser(this.lastModifyUser)
             .build();
     }
 }

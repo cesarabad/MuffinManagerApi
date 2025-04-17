@@ -123,7 +123,6 @@ public class ProductItemService implements IProductItemService {
             productItemEntity.setItemReference(entityDto.getReference());
             productItemEntity.setBaseProductItem(baseProductItemRepository.findById(entityDto.getBaseProductItemId()).orElse(null));
             productItemEntity.setBrand(brandRepository.findById(entityDto.getBrandId()).orElse(null));
-            productItemEntity.setMainDescription(entityDto.getMainDescription());
             productItemEntity.setEan13(entityDto.getEan13());
             productItemEntity.setAliasVersion(entityDto.getAliasVersion());
             productItemEntity.setCreationDate(productItemEntity.getCreationDate() != null ? productItemEntity.getCreationDate() : Timestamp.valueOf(LocalDateTime.now()));
@@ -150,7 +149,6 @@ public class ProductItemService implements IProductItemService {
             .itemReference(dto.getReference())
             .baseProductItem(baseProductItemRepository.findById(dto.getBaseProductItemId()).orElse(null))
             .brand(brandRepository.findById(dto.getBrandId()).orElse(null))
-            .mainDescription(dto.getMainDescription())
             .ean13(dto.getEan13())
             .version(dto.getVersion())
             .aliasVersion(dto.getAliasVersion())

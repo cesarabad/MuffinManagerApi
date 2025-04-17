@@ -18,9 +18,9 @@ import lombok.Setter;
 public class ProductItemDto {
     private int id;
     private String reference;
+    private String productItemInfo;
     private Integer baseProductItemId;
     private Integer brandId;
-    private String mainDescription;
     private String ean13;
     private int version;
     private String aliasVersion;

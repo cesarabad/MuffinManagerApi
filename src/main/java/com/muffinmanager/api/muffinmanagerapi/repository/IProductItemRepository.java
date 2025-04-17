@@ -14,4 +14,6 @@ public interface IProductItemRepository extends CrudRepository<ProductItemEntity
     @Query("SELECT MAX(p.version) FROM ProductItemEntity p WHERE p.itemReference = :reference")
     Optional<Integer> findHighestVersionByReference(@Param("reference") String reference);
     Optional<List<ProductItemEntity>> findByItemReference(String reference);
+    @Query("SELECT p FROM ProductItemEntity p WHERE p.brand.brandReference = :reference")
+    Optional<List<ProductItemEntity>> findByBrandReference(@Param("reference") String reference);
 }

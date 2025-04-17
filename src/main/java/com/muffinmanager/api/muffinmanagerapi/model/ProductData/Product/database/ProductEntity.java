@@ -71,16 +71,36 @@ public class ProductEntity {
             .id(id)
             .reference(productReference)
             .boxId(box != null ? box.getId() : null)
+            .boxInfo(box != null 
+                ? box.getBoxReference() + " - " + box.getDescription() 
+                : null)
             .productItemId(productItem != null ? productItem.getId() : null)
+            .productItemInfo(productItem != null 
+                ? productItem.getItemReference() + " - " 
+                  + productItem.getBaseProductItem().getMuffinShape().getDescription()
+                  + (productItem.getBaseProductItem().getMainDescription() != null 
+                    ? " " + productItem.getBaseProductItem().getMainDescription() 
+                    : "") + " "
+                  + productItem.getBaseProductItem().getUnitsPerItem() + " UDS "
+                  + productItem.getBrand().getName()
+                : null)
             .itemsPerProduct(itemsPerProduct)
             .ean14(ean14)
             .version(version)
             .aliasVersion(aliasVersion)
-            .creationDate(creationDate != null ? creationDate.toLocalDateTime() : null)
-            .endDate(endDate != null ? endDate.toLocalDateTime() : null)
+            .creationDate(creationDate != null 
+                ? creationDate.toLocalDateTime() 
+                : null)
+            .endDate(endDate != null 
+                ? endDate.toLocalDateTime() 
+                : null)
             .isObsolete(isObsolete)
-            .lastModifyDate(lastModifyDate != null ? lastModifyDate.toLocalDateTime() : null)
-            .lastModifyUser(lastModifyUser != null ? lastModifyUser.toSafeDto() : null)
+            .lastModifyDate(lastModifyDate != null 
+                ? lastModifyDate.toLocalDateTime() 
+                : null)
+            .lastModifyUser(lastModifyUser != null 
+                ? lastModifyUser.toSafeDto() 
+                : null)
             .build();
     }
 }
