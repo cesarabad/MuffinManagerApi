@@ -4,6 +4,7 @@ import java.sql.Timestamp;
 
 import com.muffinmanager.api.muffinmanagerapi.model.Box.Database.BoxEntity;
 import com.muffinmanager.api.muffinmanagerapi.model.ProductData.Product.dto.ProductDto;
+import com.muffinmanager.api.muffinmanagerapi.model.ProductData.Product.dto.ProductLightDto;
 import com.muffinmanager.api.muffinmanagerapi.model.ProductData.ProductItem.database.ProductItemEntity;
 import com.muffinmanager.api.muffinmanagerapi.model.User.database.UserEntity;
 
@@ -103,4 +104,28 @@ public class ProductEntity {
                 : null)
             .build();
     }
+
+    public ProductLightDto toLightDto() {
+        return ProductLightDto.builder()
+            .reference(productReference)
+            .description(productItem != null 
+            ? 
+              productItem.getBaseProductItem().getMuffinShape().getDescription()
+              + (productItem.getBaseProductItem().getMainDescription() != null && !productItem.getBaseProductItem().getMainDescription().isEmpty() 
+                ? " " + productItem.getBaseProductItem().getMainDescription()
+                : "") + " "
+              + productItem.getBaseProductItem().getUnitsPerItem() + " UDS "
+              + productItem.getBrand().getName()
+            : null)
+            .boxReference(box != null 
+            ? box.getBoxReference() 
+            : null)
+            .boxDescription(box != null
+            ? box.getDescription()
+            : null)
+            .itemsPerProduct(itemsPerProduct)
+            .aliasVersion(aliasVersion)
+            .build();
+    }
+   
 }

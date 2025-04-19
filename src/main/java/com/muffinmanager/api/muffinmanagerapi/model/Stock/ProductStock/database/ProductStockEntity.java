@@ -9,7 +9,8 @@ import org.hibernate.annotations.FilterDef;
 import com.muffinmanager.api.muffinmanagerapi.model.PackagePrint.database.PackagePrintEntity;
 import com.muffinmanager.api.muffinmanagerapi.model.ProductData.Product.database.ProductEntity;
 import com.muffinmanager.api.muffinmanagerapi.model.Stock.MovementStock.database.MovementStockEntity;
-import com.muffinmanager.api.muffinmanagerapi.model.Stock.ProductStock.dto.ProductStockDto;
+import com.muffinmanager.api.muffinmanagerapi.model.Stock.ProductStock.dto.ProductStockRequestDto;
+import com.muffinmanager.api.muffinmanagerapi.model.Stock.ProductStock.dto.ProductStockResponseDto;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -62,16 +63,27 @@ public class ProductStockEntity {
     @OneToMany(mappedBy = "productStock")
     private List<MovementStockEntity> reserves;
 
-    public ProductStockDto toDto() {
-        return ProductStockDto.builder()
-            .id(id)
-            .productId(product != null ? product.getId() : 0)
+    public ProductStockRequestDto toRequestDto() {
+        return ProductStockRequestDto.builder()
+            .productId(product.getId())
             .packagePrintId(packagePrint != null ? packagePrint.getId() : 0)
             .batch(batch)
             .stock(stock)
             .observations(observations)
             .lastCheckDate(lastCheckDate != null ? lastCheckDate.toLocalDateTime() : null)
-            .reserves(reserves != null ? reserves.stream().map(MovementStockEntity::toDto).toList() : null)
+            .build();
+    }
+
+    public ProductStockResponseDto toResponseDto() {
+        return ProductStockResponseDto.builder()
+            .id(id)
+            .product(product != null ? product.toLightDto() : null)
+            .packagePrintId(packagePrint != null ? packagePrint.toLightDto() : null)
+            .batch(batch)
+            .stock(stock)
+            .observations(observations)
+            .lastCheckDate(lastCheckDate != null ? lastCheckDate.toLocalDateTime() : null)
+            .reserves(reserves.stream().map(MovementStockEntity::toActiveReserveDto).toList())
             .build();
     }
 }

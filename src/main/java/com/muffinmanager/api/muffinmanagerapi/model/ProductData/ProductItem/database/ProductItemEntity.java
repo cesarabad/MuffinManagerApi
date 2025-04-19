@@ -79,6 +79,8 @@ public class ProductItemEntity {
             .build();
     }
 
+    
+
     public ProductItemEntity clone() {
         return ProductItemEntity.builder()
             .itemReference(this.itemReference)

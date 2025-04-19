@@ -10,35 +10,24 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
-import com.muffinmanager.api.muffinmanagerapi.controller.ProductData.ProductItemController;
 import com.muffinmanager.api.muffinmanagerapi.jwt.IJwtService;
 import com.muffinmanager.api.muffinmanagerapi.jwt.JwtAutenticationFilter;
 import com.muffinmanager.api.muffinmanagerapi.model.Brand.database.BrandEntity;
 import com.muffinmanager.api.muffinmanagerapi.model.Brand.dto.BrandDto;
-import com.muffinmanager.api.muffinmanagerapi.model.ProductData.ProductItem.database.ProductItemEntity;
 import com.muffinmanager.api.muffinmanagerapi.repository.IBrandRepository;
-import com.muffinmanager.api.muffinmanagerapi.repository.IProductItemRepository;
 import com.muffinmanager.api.muffinmanagerapi.repository.IUserRepository;
-import com.muffinmanager.api.muffinmanagerapi.service.ProductData.ProductItem.IProductItemService;
 
 @Service
 public class BrandService implements IBrandService {
 
     @Autowired
     private IBrandRepository brandRepository;
-    @Autowired 
-    private IProductItemRepository productItemRepository;
-    @Autowired 
-    private IProductItemService productItemService;
     @Autowired
     private IUserRepository userRepository;
     @Autowired
     JwtAutenticationFilter jwtFilter;
-    @Autowired
-    private SimpMessagingTemplate messagingTemplate;
     @Autowired
     IJwtService jwtService;
 
@@ -66,24 +55,7 @@ public class BrandService implements IBrandService {
         brandEntity.setVersion(brandRepository.findHighestVersionByReference(entityDto.getReference()).orElse(0) + 1);
         brandEntity.setObsolete(false);
         brandEntity.setEndDate(null);
-        BrandEntity savedBrandEntity = brandRepository.save(brandEntity);
-        productItemRepository.findByBrandReference(savedBrandEntity.getBrandReference()).ifPresent(items -> {
-            
-            items.stream()
-            .filter(item -> !item.getIsObsolete())
-            .forEach(item -> {
-            ProductItemEntity itemCloned = item.clone();
-            itemCloned.setId(0);
-            itemCloned.setBrand(savedBrandEntity);
-            itemCloned.setAliasVersion(brandEntity.getAliasVersion());
-            productItemService.insert(itemCloned.toDto());
-            });
-
-            if (!items.isEmpty()) {
-                messagingTemplate.convertAndSend("/topic" + ProductItemController.BASE_URL, "");
-            }
-        });
-        return savedBrandEntity.toDto();
+        return brandRepository.save(brandEntity).toDto();
     }
 
     @Override

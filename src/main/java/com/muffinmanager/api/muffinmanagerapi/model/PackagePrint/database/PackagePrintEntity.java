@@ -3,6 +3,7 @@ package com.muffinmanager.api.muffinmanagerapi.model.PackagePrint.database;
 import java.sql.Timestamp;
 
 import com.muffinmanager.api.muffinmanagerapi.model.PackagePrint.dto.PackagePrintDto;
+import com.muffinmanager.api.muffinmanagerapi.model.PackagePrint.dto.PackagePrintLightDto;
 import com.muffinmanager.api.muffinmanagerapi.model.User.database.UserEntity;
 
 import jakarta.persistence.Column;
@@ -47,5 +48,12 @@ public class PackagePrintEntity {
             .lastModifyUser(lastModifyUser != null ? lastModifyUser.toSafeDto() : null)
             .build();
     
+    }
+
+    public PackagePrintLightDto toLightDto() {
+        return PackagePrintLightDto.builder()
+            .reference(packagePrintReference)
+            .description(description)
+            .build();
     }
 }

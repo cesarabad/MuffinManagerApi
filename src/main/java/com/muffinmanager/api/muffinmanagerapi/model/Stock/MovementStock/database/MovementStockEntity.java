@@ -2,6 +2,7 @@ package com.muffinmanager.api.muffinmanagerapi.model.Stock.MovementStock.databas
 
 import java.sql.Timestamp;
 
+import com.muffinmanager.api.muffinmanagerapi.model.Stock.MovementStock.dto.ActiveReserveStockDto;
 import com.muffinmanager.api.muffinmanagerapi.model.Stock.MovementStock.dto.MovementStockDto;
 import com.muffinmanager.api.muffinmanagerapi.model.Stock.ProductStock.database.ProductStockEntity;
 import com.muffinmanager.api.muffinmanagerapi.model.User.database.UserEntity;
@@ -57,6 +58,17 @@ public class MovementStockEntity {
             .endDate(endDate != null ? endDate.toLocalDateTime() : null)
             .observations(observations)
             .status(status)
+            .build();
+    }
+
+    public ActiveReserveStockDto toActiveReserveDto() {
+        return ActiveReserveStockDto.builder()
+            .id(id)
+            .responsible(responsible != null ? responsible.toSafeDto() : null)
+            .units(units)
+            .destination(destination)
+            .creationDate(creationDate != null ? creationDate.toLocalDateTime() : null)
+            .observations(observations)
             .build();
     }
 }
