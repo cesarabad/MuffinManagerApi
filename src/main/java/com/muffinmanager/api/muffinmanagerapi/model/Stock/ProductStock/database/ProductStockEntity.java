@@ -2,9 +2,7 @@ package com.muffinmanager.api.muffinmanagerapi.model.Stock.ProductStock.database
 
 import java.sql.Timestamp;
 import java.util.List;
-
-import org.hibernate.annotations.Filter;
-import org.hibernate.annotations.FilterDef;
+import org.hibernate.annotations.Where;
 
 import com.muffinmanager.api.muffinmanagerapi.model.PackagePrint.database.PackagePrintEntity;
 import com.muffinmanager.api.muffinmanagerapi.model.ProductData.Product.database.ProductEntity;
@@ -28,7 +26,7 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "productstock")
-@FilterDef(name = "onlyReserves", defaultCondition = "type = 4 AND status = 1")
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -59,9 +57,14 @@ public class ProductStockEntity {
     @Column(name = "lastcheckdate")
     private Timestamp lastCheckDate;
 
-    @Filter(name = "onlyReserves")
+    @SuppressWarnings("deprecation")
     @OneToMany(mappedBy = "productStock")
+    @Where(clause = "type = 'Reserve' AND status = 'InProgress'")
     private List<MovementStockEntity> reserves;
+
+    public void setReserves(List<MovementStockEntity> reserves) {
+        this.reserves = reserves;
+    }
 
     public ProductStockRequestDto toRequestDto() {
         return ProductStockRequestDto.builder()
@@ -78,7 +81,7 @@ public class ProductStockEntity {
         return ProductStockResponseDto.builder()
             .id(id)
             .product(product != null ? product.toLightDto() : null)
-            .packagePrintId(packagePrint != null ? packagePrint.toLightDto() : null)
+            .packagePrint(packagePrint != null ? packagePrint.toLightDto() : null)
             .batch(batch)
             .stock(stock)
             .observations(observations)

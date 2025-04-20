@@ -66,6 +66,7 @@ public class ProductStockService implements IProductStockService{
                             .map(productEntry -> {
                                 return new Object() {
                                     public final Object productId = productEntry.getValue().stream()
+                                    .filter(entity -> entity.getStock() > 0)
                                     .map(ProductStockEntity::toResponseDto)
                                     .collect(Collectors.toList());
                                 };
@@ -115,13 +116,9 @@ public class ProductStockService implements IProductStockService{
         return null;
     }
 
-
-
     @Override
     public void deleteById(int id) {
         productStockRepository.deleteById(id);
     }
 
-    
-    
 }

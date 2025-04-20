@@ -20,7 +20,7 @@ import lombok.Setter;
 public class ProductStockResponseDto {
     private int id;
     private ProductLightDto product;
-    private PackagePrintLightDto packagePrintId;
+    private PackagePrintLightDto packagePrint;
     private String batch;
     private int stock;
     private String observations;

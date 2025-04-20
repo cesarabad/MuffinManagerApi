@@ -4,11 +4,15 @@ import java.sql.Timestamp;
 
 import com.muffinmanager.api.muffinmanagerapi.model.Stock.MovementStock.dto.ActiveReserveStockDto;
 import com.muffinmanager.api.muffinmanagerapi.model.Stock.MovementStock.dto.MovementStockDto;
+import com.muffinmanager.api.muffinmanagerapi.model.Stock.MovementStock.enums.MovementStatus;
+import com.muffinmanager.api.muffinmanagerapi.model.Stock.MovementStock.enums.MovementType;
 import com.muffinmanager.api.muffinmanagerapi.model.Stock.ProductStock.database.ProductStockEntity;
 import com.muffinmanager.api.muffinmanagerapi.model.User.database.UserEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -33,10 +37,13 @@ public class MovementStockEntity {
     @ManyToOne
     @JoinColumn(name = "productstockid")
     private ProductStockEntity productStock;
-    private int type;
+    @Enumerated(EnumType.STRING)
+    private MovementType type;
     @ManyToOne
     @JoinColumn(name = "responsibleuserid")
     private UserEntity responsible;
+    @Column(name = "stockdifference")
+    private int stockDifference;
     private int units;
     private String destination;
     @Column(name = "creationdate", nullable = false)
@@ -44,12 +51,16 @@ public class MovementStockEntity {
     @Column(name = "enddate")
     private Timestamp endDate;
     private String observations;
-    private int status;
+    @Enumerated(EnumType.STRING)
+    private MovementStatus status;
 
     public MovementStockDto toDto() {
         return MovementStockDto.builder()
             .id(id)
             .productStockId(productStock != null ? productStock.getId() : 0)
+            .productReference(productStock != null ? productStock.getProduct().getProductReference() : null)
+            .batch(productStock != null ? productStock.getBatch() : null)
+            .packagePrintDescription(productStock != null ? productStock.getPackagePrint().getDescription() : null)
             .type(type)
             .responsible(responsible != null ? responsible.toSafeDto() : null)
             .units(units)
