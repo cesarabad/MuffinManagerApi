@@ -80,13 +80,12 @@ public class ProductStockEntity {
     public ProductStockResponseDto toResponseDto() {
         return ProductStockResponseDto.builder()
             .id(id)
-            .product(product != null ? product.toLightDto() : null)
             .packagePrint(packagePrint != null ? packagePrint.toLightDto() : null)
             .batch(batch)
             .stock(stock)
             .observations(observations)
             .lastCheckDate(lastCheckDate != null ? lastCheckDate.toLocalDateTime() : null)
-            .reserves(reserves.stream().map(MovementStockEntity::toActiveReserveDto).toList())
+            .reserves(reserves != null ? reserves.stream().map(MovementStockEntity::toActiveReserveDto).toList() : null)
             .build();
     }
 }

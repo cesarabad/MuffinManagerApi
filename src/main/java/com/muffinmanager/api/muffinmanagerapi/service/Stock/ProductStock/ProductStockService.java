@@ -2,14 +2,22 @@ package com.muffinmanager.api.muffinmanagerapi.service.Stock.ProductStock;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.Base64;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+
+import com.muffinmanager.api.muffinmanagerapi.model.ProductData.Product.database.ProductEntity;
+import com.muffinmanager.api.muffinmanagerapi.model.ProductData.Product.dto.ProductLightDto;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.muffinmanager.api.muffinmanagerapi.model.Brand.database.BrandEntity;
+import com.muffinmanager.api.muffinmanagerapi.model.MuffinShape.database.MuffinShapeEntity;
 import com.muffinmanager.api.muffinmanagerapi.model.Stock.ProductStock.database.ProductStockEntity;
 import com.muffinmanager.api.muffinmanagerapi.model.Stock.ProductStock.dto.ProductStockRequestDto;
 import com.muffinmanager.api.muffinmanagerapi.model.Stock.ProductStock.dto.ProductStockResponseDto;
@@ -47,38 +55,75 @@ public class ProductStockService implements IProductStockService{
 
     @Override
     public Object getAllGroupedByBrandThenMuffinShapeThenProductId() {
-        // brand -> muffin shape -> product id
-        
         return StreamSupport.stream(productStockRepository.findAll().spliterator(), false)
-            .collect(Collectors.groupingBy(entity -> entity.getProduct().getProductItem().getBrand(), // Group by brand
-            Collectors.groupingBy(entity -> entity.getProduct().getProductItem().getBaseProductItem().getMuffinShape(), // Group by muffin shape
-                Collectors.groupingBy(entity -> entity.getProduct().getId(), // Group by product ID
-                Collectors.toList())))) // Collect as list
+            .collect(Collectors.groupingBy(
+                (ProductStockEntity entity) -> entity.getProduct().getProductItem().getBrand(),
+                () -> new TreeMap<BrandEntity, Map<MuffinShapeEntity, Map<ProductEntity, List<ProductStockEntity>>>>(
+                    Comparator.comparing(BrandEntity::getBrandReference)
+                ),
+                Collectors.groupingBy(
+                    (ProductStockEntity entity) -> entity.getProduct().getProductItem().getBaseProductItem().getMuffinShape(),
+                    () -> new TreeMap<MuffinShapeEntity, Map<ProductEntity, List<ProductStockEntity>>>(
+                        Comparator.comparing(MuffinShapeEntity::getShapeReference)
+                    ),
+                    Collectors.groupingBy(
+                        ProductStockEntity::getProduct,
+                        () -> new TreeMap<ProductEntity, List<ProductStockEntity>>(
+                            Comparator.comparing(ProductEntity::getProductReference)
+                        ),
+                        Collectors.toList()
+                    )
+                )
+            ))
             .entrySet().stream()
             .map(brandEntry -> {
+                BrandEntity brand = brandEntry.getKey();
+                Map<MuffinShapeEntity, Map<ProductEntity, List<ProductStockEntity>>> shapeMap = brandEntry.getValue();
+
                 return new Object() {
                     @SuppressWarnings("unused")
-                    public final Object brand = brandEntry.getValue().entrySet().stream()
-                    .map(shapeEntry -> {
-                        
-                        return new Object() {
-                            public final Object muffinShape = shapeEntry.getValue().entrySet().stream()
-                            .map(productEntry -> {
-                                return new Object() {
-                                    public final Object productId = productEntry.getValue().stream()
-                                    .filter(entity -> entity.getStock() > 0)
-                                    .map(ProductStockEntity::toResponseDto)
+                    public final String brandName = brand.getName();
+                    @SuppressWarnings("unused")
+                    public final String brandAliasVersion = brand.getAliasVersion();
+                    @SuppressWarnings("unused")
+                    public final String brandLogoBase64 = brand.getLogo() != null
+                            ? Base64.getEncoder().encodeToString(brand.getLogo())
+                            : null;
+
+                    @SuppressWarnings("unused")
+                    public final List<Object> muffinShapes = shapeMap.entrySet().stream()
+                        .map(shapeEntry -> {
+                            MuffinShapeEntity shape = shapeEntry.getKey();
+                            Map<ProductEntity, List<ProductStockEntity>> productsMap = shapeEntry.getValue();
+
+                            return new Object() {
+                                public final String muffinShape = shape.getDescription();
+                                public final List<Object> products = productsMap.entrySet().stream()
+                                    .map(productEntry -> {
+                                        ProductEntity productEntity = productEntry.getKey();
+                                        List<ProductStockEntity> stockList = productEntry.getValue();
+
+                                        return new Object() {
+                                            public final ProductLightDto product = productEntity.toLightDto();
+                                            public final List<Object> stockDetails = stockList.stream()
+                                                .sorted(Comparator.comparing(ProductStockEntity::getBatch))
+                                                .map(ProductStockEntity::toResponseDto)
+                                                .collect(Collectors.toList());
+                                        };
+                                    })
                                     .collect(Collectors.toList());
-                                };
-                            })
-                            .collect(Collectors.toList());
-                        };
-                    })
-                    .collect(Collectors.toList());
+                            };
+                        })
+                        .collect(Collectors.toList());
                 };
             })
             .collect(Collectors.toList());
     }
+
+    
+
+
+
 
 
 
