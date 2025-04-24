@@ -148,7 +148,7 @@ public class MovementStockService implements IMovementStockService {
     @Override
     public MovementStockDto undoMovement(int movementStockId) {
         MovementStockEntity movementStock = movementStockRepository.findById(movementStockId).orElse(null);
-        if (movementStock != null) {
+        if (movementStock != null && movementStock.getStatus() != MovementStatus.Canceled) {
 
             ProductStockEntity productStock = movementStock.getProductStock();
             if (productStock != null) {
@@ -180,8 +180,11 @@ public class MovementStockService implements IMovementStockService {
     @Override
     public List<MovementStockDto> getHistoricByProductId(int productId) {
         return StreamSupport.stream(movementStockRepository.findAll().spliterator(), false)
-            .filter(movementStock -> movementStock.getProductStock() != null && movementStock.getProductStock().getProduct() != null && movementStock.getProductStock().getProduct().getId() == productId)
+            .filter(movementStock -> movementStock.getProductStock() != null 
+                && movementStock.getProductStock().getProduct() != null 
+                && movementStock.getProductStock().getProduct().getId() == productId)
             .map(MovementStockEntity::toDto)
+            
             .sorted((a, b) -> b.getCreationDate().compareTo(a.getCreationDate()))
             .toList();
     }

@@ -19,6 +19,7 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Data
@@ -26,6 +27,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
 @Table(name = "product")
 public class ProductEntity {
     @Id
@@ -107,6 +109,7 @@ public class ProductEntity {
 
     public ProductLightDto toLightDto() {
         return ProductLightDto.builder()
+            .id(id)
             .reference(productReference)
             .description(productItem != null 
             ? 
