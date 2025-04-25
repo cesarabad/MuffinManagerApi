@@ -54,9 +54,9 @@ public class ProductStockController {
         return ResponseEntity.ok(productStockService.update(productStockDto));
     }
 
-    @PostMapping("updateLastUpdateDate/{id}")
-    public ResponseEntity<Void> updateLastUpdateDate(@PathVariable int id) {
-        productStockService.updateLastUpdateDate(id);
+    @PostMapping("updateLastCheckDate/{id}")
+    public ResponseEntity<Void> updateLastCheckDate(@PathVariable int id) {
+        productStockService.updateLastCheckDate(id);
         return ResponseEntity.ok().build();
     }
     

@@ -169,7 +169,7 @@ public class ProductStockService implements IProductStockService{
 
 
     @Override
-    public void updateLastUpdateDate(int id) {
+    public void updateLastCheckDate(int id) {
         ProductStockEntity entity = productStockRepository.findById(id).orElse(null);
         if (entity != null) {
             entity.setLastCheckDate(Timestamp.valueOf(LocalDateTime.now()));
