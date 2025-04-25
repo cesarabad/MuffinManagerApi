@@ -166,4 +166,15 @@ public class ProductStockService implements IProductStockService{
         productStockRepository.deleteById(id);
     }
 
+
+
+    @Override
+    public void updateLastUpdateDate(int id) {
+        ProductStockEntity entity = productStockRepository.findById(id).orElse(null);
+        if (entity != null) {
+            entity.setLastCheckDate(Timestamp.valueOf(LocalDateTime.now()));
+            productStockRepository.save(entity);
+        }
+    }
+
 }

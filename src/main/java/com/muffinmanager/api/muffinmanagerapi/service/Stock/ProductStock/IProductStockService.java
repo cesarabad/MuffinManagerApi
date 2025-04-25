@@ -11,4 +11,5 @@ public interface IProductStockService {
     public ProductStockResponseDto insert(ProductStockRequestDto productStockDto);
     public ProductStockResponseDto update(ProductStockRequestDto productStockDto);
     public void deleteById(int id);
+    public void updateLastUpdateDate(int id);
 }

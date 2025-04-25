@@ -53,5 +53,11 @@ public class ProductStockController {
     public ResponseEntity<ProductStockResponseDto> update(@RequestBody ProductStockRequestDto productStockDto) {
         return ResponseEntity.ok(productStockService.update(productStockDto));
     }
+
+    @PostMapping("updateLastUpdateDate/{id}")
+    public ResponseEntity<Void> updateLastUpdateDate(@PathVariable int id) {
+        productStockService.updateLastUpdateDate(id);
+        return ResponseEntity.ok().build();
+    }
     
 }
