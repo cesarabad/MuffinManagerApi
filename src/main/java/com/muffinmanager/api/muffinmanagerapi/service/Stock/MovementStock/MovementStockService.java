@@ -210,8 +210,16 @@ public class MovementStockService implements IMovementStockService {
 
     private MovementStockDto updateReserve(MovementStockDto movementStockDto) {
         MovementStockEntity movementStock = movementStockRepository.findById(movementStockDto.getId()).orElse(null);
+        
         if (movementStock != null) {
-            movementStock.setUnits(movementStockDto.getUnits());
+            ProductStockEntity productStock = productStockRepository.findById(movementStock.getProductStock().getId()).orElse(null);
+            if (productStock != null) {
+                
+                productStock.setStock(productStock.getStock() - (movementStockDto.getUnits() + movementStock.getStockDifference()));
+                movementStock.setStockDifference(-movementStockDto.getUnits());
+                movementStock.setUnits(movementStockDto.getUnits());
+                productStockRepository.save(productStock);
+            }
             movementStock.setDestination(movementStockDto.getDestination());
             movementStock.setObservations(movementStockDto.getObservations());
             return movementStockRepository.save(movementStock).toDto();
