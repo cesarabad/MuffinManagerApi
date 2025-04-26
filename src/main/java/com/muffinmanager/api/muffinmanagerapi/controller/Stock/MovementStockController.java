@@ -90,6 +90,28 @@ public class MovementStockController {
         return movementStockDto;
     }
 
+    @PostMapping("update")
+    public ResponseEntity<MovementStockDto> update(@RequestBody MovementStockDto movementStockDto) {
+        MovementStockDto updatedEntity = movementStockService.update(movementStockDto);
+        UserSafeDto user = userRepository.findByDni(jwtService.getDniFromToken(jwtFilter.getToken())).orElseThrow().toSafeDto();
+        switch (movementStockDto.getType()) {
+            case Entry -> {
+            messagingTemplate.convertAndSend("/topic/global", WebSocketMessage.builder().dictionaryKey("ws.stock.movementStock.updated.entry").user(user).build());
+            }
+            case Assigned -> {
+            messagingTemplate.convertAndSend("/topic/global", WebSocketMessage.builder().dictionaryKey("ws.stock.movementStock.updated.assigned").user(user).build());
+            }
+            case Adjustment -> {
+            messagingTemplate.convertAndSend("/topic/global", WebSocketMessage.builder().dictionaryKey("ws.stock.movementStock.updated.adjustment").user(user).build());
+            }
+            case Reserve -> {
+            messagingTemplate.convertAndSend("/topic/global", WebSocketMessage.builder().dictionaryKey("ws.stock.movementStock.updated.reserve").user(user).build());
+            }
+        }
+        messagingTemplate.convertAndSend("/topic" + BASE_URL, movementStockDto);
+        return ResponseEntity.ok(updatedEntity);
+    }
+
     @GetMapping("getHistoric")
     public List<MovementStockDto> getHistoric() {
         return movementStockService.getHistoric();
@@ -104,4 +126,5 @@ public class MovementStockController {
     public List<MovementStockDto> getHistoricByProductId(@PathVariable int productId) {
         return movementStockService.getHistoricByProductId(productId);
     }
+
 }

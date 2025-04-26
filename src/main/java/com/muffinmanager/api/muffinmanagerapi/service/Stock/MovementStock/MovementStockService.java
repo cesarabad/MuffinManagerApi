@@ -188,5 +188,35 @@ public class MovementStockService implements IMovementStockService {
             .sorted((a, b) -> b.getCreationDate().compareTo(a.getCreationDate()))
             .toList();
     }
+
+    @Override
+    public MovementStockDto update(MovementStockDto movementStockDto) {
+        switch (movementStockDto.getType()) {
+            case Entry -> {
+                throw new UnsupportedOperationException("Entry movement update not implemented yet.");
+            }
+            case Assigned -> {
+                throw new UnsupportedOperationException("Assigned movement update not implemented yet.");
+            }
+            case Adjustment -> {
+                throw new UnsupportedOperationException("Adjustment movement update not implemented yet.");
+            }
+            case Reserve -> {
+                return updateReserve(movementStockDto);
+            }
+        }
+        throw new IllegalArgumentException("Invalid movement type: " + movementStockDto.getType());
+    }
+
+    private MovementStockDto updateReserve(MovementStockDto movementStockDto) {
+        MovementStockEntity movementStock = movementStockRepository.findById(movementStockDto.getId()).orElse(null);
+        if (movementStock != null) {
+            movementStock.setUnits(movementStockDto.getUnits());
+            movementStock.setDestination(movementStockDto.getDestination());
+            movementStock.setObservations(movementStockDto.getObservations());
+            return movementStockRepository.save(movementStock).toDto();
+        }
+        throw new IllegalArgumentException("Movement stock not found for ID: " + movementStockDto.getId());
+    }
     
 }

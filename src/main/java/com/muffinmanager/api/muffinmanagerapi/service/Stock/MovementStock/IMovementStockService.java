@@ -11,4 +11,5 @@ public interface IMovementStockService {
     public List<MovementStockDto> getHistoricByProductStockId(int productStockId);
     public MovementStockDto undoMovement(int movementStockId);
     public MovementStockDto endReserve(int movementStockId);
+    public MovementStockDto update(MovementStockDto movementStockDto);
 }
