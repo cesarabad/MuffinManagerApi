@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -11,7 +12,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.muffinmanager.api.muffinmanagerapi.jwt.IJwtService;
+import com.muffinmanager.api.muffinmanagerapi.jwt.JwtAutenticationFilter;
 import com.muffinmanager.api.muffinmanagerapi.model.Stock.MovementStock.dto.MovementStockDto;
+import com.muffinmanager.api.muffinmanagerapi.model.User.dto.UserSafeDto;
+import com.muffinmanager.api.muffinmanagerapi.model.WSMessage.WebSocketMessage;
+import com.muffinmanager.api.muffinmanagerapi.repository.IUserRepository;
 import com.muffinmanager.api.muffinmanagerapi.service.Stock.MovementStock.IMovementStockService;
 
 @RestController
@@ -22,20 +28,40 @@ public class MovementStockController {
 
     @Autowired
     private IMovementStockService movementStockService;
+    @Autowired
+    private IUserRepository userRepository;
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
+    @Autowired
+    private JwtAutenticationFilter jwtFilter;
+    @Autowired
+    private IJwtService jwtService;
 
     @PostMapping("insert")
     public ResponseEntity<MovementStockDto> insert(@RequestBody MovementStockDto movementStockDto) {
-        return ResponseEntity.ok(movementStockService.insert(movementStockDto));
+        MovementStockDto createdEntity = movementStockService.insert(movementStockDto);
+        UserSafeDto user = userRepository.findByDni(jwtService.getDniFromToken(jwtFilter.getToken())).orElseThrow().toSafeDto();
+        messagingTemplate.convertAndSend("/topic/global", WebSocketMessage.builder().dictionaryKey("ws.stock.movementStock.created").user(user).build());
+        messagingTemplate.convertAndSend("/topic" + BASE_URL, movementStockDto);
+        return ResponseEntity.ok(createdEntity);
     }
 
     @PostMapping("undoMovement/{movementStockId}")
     public MovementStockDto undoMovement(@PathVariable int movementStockId) {
-        return movementStockService.undoMovement(movementStockId);
+        MovementStockDto movementStockDto = movementStockService.undoMovement(movementStockId);
+        UserSafeDto user = userRepository.findByDni(jwtService.getDniFromToken(jwtFilter.getToken())).orElseThrow().toSafeDto();
+        messagingTemplate.convertAndSend("/topic/global", WebSocketMessage.builder().dictionaryKey("ws.stock.movementStock.unDone").user(user).build());
+        messagingTemplate.convertAndSend("/topic" + BASE_URL, movementStockDto);
+        return movementStockDto;
     }
 
     @PostMapping("endReserve/{movementStockId}")
     public MovementStockDto endReserve(@PathVariable int movementStockId) {
-        return movementStockService.endReserve(movementStockId);
+        MovementStockDto movementStockDto = movementStockService.endReserve(movementStockId);
+        UserSafeDto user = userRepository.findByDni(jwtService.getDniFromToken(jwtFilter.getToken())).orElseThrow().toSafeDto();
+        messagingTemplate.convertAndSend("/topic/global", WebSocketMessage.builder().dictionaryKey("ws.stock.movementStock.endReserve").user(user).build());
+        messagingTemplate.convertAndSend("/topic" + BASE_URL, movementStockDto);
+        return movementStockDto;
     }
 
     @GetMapping("getHistoric")

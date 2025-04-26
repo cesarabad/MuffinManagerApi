@@ -3,10 +3,17 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.muffinmanager.api.muffinmanagerapi.jwt.IJwtService;
+import com.muffinmanager.api.muffinmanagerapi.jwt.JwtAutenticationFilter;
 import com.muffinmanager.api.muffinmanagerapi.model.Stock.ProductStock.dto.ProductStockRequestDto;
 import com.muffinmanager.api.muffinmanagerapi.model.Stock.ProductStock.dto.ProductStockResponseDto;
+import com.muffinmanager.api.muffinmanagerapi.model.User.dto.UserSafeDto;
+import com.muffinmanager.api.muffinmanagerapi.model.WSMessage.WebSocketMessage;
+import com.muffinmanager.api.muffinmanagerapi.repository.IUserRepository;
 import com.muffinmanager.api.muffinmanagerapi.service.Stock.ProductStock.IProductStockService;
 
 import jakarta.websocket.server.PathParam;
@@ -27,10 +34,22 @@ public class ProductStockController {
 
     @Autowired
     private IProductStockService productStockService;
+    @Autowired
+    private IUserRepository userRepository;
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
+    @Autowired
+    private JwtAutenticationFilter jwtFilter;
+    @Autowired
+    private IJwtService jwtService;
 
     @PostMapping("insert")
     public ResponseEntity<ProductStockResponseDto> insert(@RequestBody ProductStockRequestDto productStockDto) {
-        return ResponseEntity.ok(productStockService.insert(productStockDto));
+        ProductStockResponseDto createdEntity = productStockService.insert(productStockDto);
+        UserSafeDto user = userRepository.findByDni(jwtService.getDniFromToken(jwtFilter.getToken())).orElseThrow().toSafeDto();
+        messagingTemplate.convertAndSend("/topic/global", WebSocketMessage.builder().dictionaryKey("ws.stock.productStock.created").user(user).build());  
+        messagingTemplate.convertAndSend("/topic" + BASE_URL, productStockDto);
+        return ResponseEntity.ok(createdEntity);
     }
 
     @GetMapping("getGroupedBy")
@@ -46,17 +65,27 @@ public class ProductStockController {
     @DeleteMapping("delete/{id}")
     public ResponseEntity<Void> deleteById(@PathVariable int id) {
         productStockService.deleteById(id);
+        UserSafeDto user = userRepository.findByDni(jwtService.getDniFromToken(jwtFilter.getToken())).orElseThrow().toSafeDto();
+        messagingTemplate.convertAndSend("/topic/global", WebSocketMessage.builder().dictionaryKey("ws.stock.productStock.deleted").user(user).build());
+        messagingTemplate.convertAndSend("/topic" + BASE_URL, id);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("update")
     public ResponseEntity<ProductStockResponseDto> update(@RequestBody ProductStockRequestDto productStockDto) {
-        return ResponseEntity.ok(productStockService.update(productStockDto));
+        ProductStockResponseDto updatedEntity = productStockService.update(productStockDto);
+        UserSafeDto user = userRepository.findByDni(jwtService.getDniFromToken(jwtFilter.getToken())).orElseThrow().toSafeDto();
+        messagingTemplate.convertAndSend("/topic/global", WebSocketMessage.builder().dictionaryKey("ws.stock.productStock.updated").user(user).build());
+        messagingTemplate.convertAndSend("/topic" + BASE_URL, productStockDto);
+        return ResponseEntity.ok(updatedEntity);
     }
 
     @PostMapping("updateLastCheckDate/{id}")
     public ResponseEntity<Void> updateLastCheckDate(@PathVariable int id) {
         productStockService.updateLastCheckDate(id);
+        UserSafeDto user = userRepository.findByDni(jwtService.getDniFromToken(jwtFilter.getToken())).orElseThrow().toSafeDto();
+        messagingTemplate.convertAndSend("/topic/global", WebSocketMessage.builder().dictionaryKey("ws.stock.productStock.updated").user(user).build());
+        messagingTemplate.convertAndSend("/topic" + BASE_URL, id);
         return ResponseEntity.ok().build();
     }
     
