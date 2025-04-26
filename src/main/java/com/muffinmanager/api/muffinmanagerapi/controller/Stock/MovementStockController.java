@@ -41,7 +41,20 @@ public class MovementStockController {
     public ResponseEntity<MovementStockDto> insert(@RequestBody MovementStockDto movementStockDto) {
         MovementStockDto createdEntity = movementStockService.insert(movementStockDto);
         UserSafeDto user = userRepository.findByDni(jwtService.getDniFromToken(jwtFilter.getToken())).orElseThrow().toSafeDto();
-        messagingTemplate.convertAndSend("/topic/global", WebSocketMessage.builder().dictionaryKey("ws.stock.movementStock.created").user(user).build());
+        switch (createdEntity.getType()) {
+            case Entry -> {
+                messagingTemplate.convertAndSend("/topic/global", WebSocketMessage.builder().dictionaryKey("ws.stock.movementStock.created.entry").user(user).build());
+            }
+            case Assigned -> {
+                messagingTemplate.convertAndSend("/topic/global", WebSocketMessage.builder().dictionaryKey("ws.stock.movementStock.created.assigned").user(user).build());
+            }
+            case Adjustment -> {
+                messagingTemplate.convertAndSend("/topic/global", WebSocketMessage.builder().dictionaryKey("ws.stock.movementStock.created.adjustment").user(user).build());
+            }
+            case Reserve -> {
+                messagingTemplate.convertAndSend("/topic/global", WebSocketMessage.builder().dictionaryKey("ws.stock.movementStock.created.reserve").user(user).build());
+            }
+        }
         messagingTemplate.convertAndSend("/topic" + BASE_URL, movementStockDto);
         return ResponseEntity.ok(createdEntity);
     }
@@ -50,7 +63,20 @@ public class MovementStockController {
     public MovementStockDto undoMovement(@PathVariable int movementStockId) {
         MovementStockDto movementStockDto = movementStockService.undoMovement(movementStockId);
         UserSafeDto user = userRepository.findByDni(jwtService.getDniFromToken(jwtFilter.getToken())).orElseThrow().toSafeDto();
-        messagingTemplate.convertAndSend("/topic/global", WebSocketMessage.builder().dictionaryKey("ws.stock.movementStock.unDone").user(user).build());
+        switch (movementStockDto.getType()) {
+            case Entry -> {
+                messagingTemplate.convertAndSend("/topic/global", WebSocketMessage.builder().dictionaryKey("ws.stock.movementStock.undoMovement.entry").user(user).build());
+            }
+            case Assigned -> {
+                messagingTemplate.convertAndSend("/topic/global", WebSocketMessage.builder().dictionaryKey("ws.stock.movementStock.undoMovement.assigned").user(user).build());
+            }
+            case Adjustment -> {
+                messagingTemplate.convertAndSend("/topic/global", WebSocketMessage.builder().dictionaryKey("ws.stock.movementStock.undoMovement.adjustment").user(user).build());
+            }
+            case Reserve -> {
+                messagingTemplate.convertAndSend("/topic/global", WebSocketMessage.builder().dictionaryKey("ws.stock.movementStock.undoMovement.reserve").user(user).build());
+            }
+        }
         messagingTemplate.convertAndSend("/topic" + BASE_URL, movementStockDto);
         return movementStockDto;
     }

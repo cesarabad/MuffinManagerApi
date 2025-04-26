@@ -46,8 +46,6 @@ public class ProductStockController {
     @PostMapping("insert")
     public ResponseEntity<ProductStockResponseDto> insert(@RequestBody ProductStockRequestDto productStockDto) {
         ProductStockResponseDto createdEntity = productStockService.insert(productStockDto);
-        UserSafeDto user = userRepository.findByDni(jwtService.getDniFromToken(jwtFilter.getToken())).orElseThrow().toSafeDto();
-        messagingTemplate.convertAndSend("/topic/global", WebSocketMessage.builder().dictionaryKey("ws.stock.productStock.created").user(user).build());  
         messagingTemplate.convertAndSend("/topic" + BASE_URL, productStockDto);
         return ResponseEntity.ok(createdEntity);
     }
@@ -74,8 +72,6 @@ public class ProductStockController {
     @PostMapping("update")
     public ResponseEntity<ProductStockResponseDto> update(@RequestBody ProductStockRequestDto productStockDto) {
         ProductStockResponseDto updatedEntity = productStockService.update(productStockDto);
-        UserSafeDto user = userRepository.findByDni(jwtService.getDniFromToken(jwtFilter.getToken())).orElseThrow().toSafeDto();
-        messagingTemplate.convertAndSend("/topic/global", WebSocketMessage.builder().dictionaryKey("ws.stock.productStock.updated").user(user).build());
         messagingTemplate.convertAndSend("/topic" + BASE_URL, productStockDto);
         return ResponseEntity.ok(updatedEntity);
     }
@@ -83,8 +79,6 @@ public class ProductStockController {
     @PostMapping("updateLastCheckDate/{id}")
     public ResponseEntity<Void> updateLastCheckDate(@PathVariable int id) {
         productStockService.updateLastCheckDate(id);
-        UserSafeDto user = userRepository.findByDni(jwtService.getDniFromToken(jwtFilter.getToken())).orElseThrow().toSafeDto();
-        messagingTemplate.convertAndSend("/topic/global", WebSocketMessage.builder().dictionaryKey("ws.stock.productStock.updated").user(user).build());
         messagingTemplate.convertAndSend("/topic" + BASE_URL, id);
         return ResponseEntity.ok().build();
     }
