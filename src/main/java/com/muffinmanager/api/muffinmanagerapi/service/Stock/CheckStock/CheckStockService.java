@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.stream.StreamSupport;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import com.muffinmanager.api.muffinmanagerapi.model.Stock.CheckStock.database.CheckStockEntity;
@@ -18,35 +19,38 @@ public class CheckStockService implements ICheckStockService {
     private ICheckStockRepository checkStockRepository;
     @Autowired
     private IProductStockRepository productStockRepository;
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate;
 
     @Override
     public void verify() {
         CheckStockEntity checkStock = checkStockRepository.findActiveCheckStock().orElse(null);
+        
         if (checkStock != null && 
             StreamSupport.stream(productStockRepository.findAll().spliterator(), false)
             .filter(productStock -> (productStock.getStock() != 0 || productStock.getReserves().size() != 0) && 
                     productStock.getLastCheckDate() != null && productStock.getLastCheckDate().before(checkStock.getStartDate()))
                     .toList().size() == 0) {
             
-            // ws message to inform that the check stock is completed
+            messagingTemplate.convertAndSend("/topic/checkStockCompleted", "Check stock completed");
             checkStock.setEndDate(Timestamp.valueOf(LocalDateTime.now()));
             checkStock.setStatus(CheckStockStatus.Completed);
+            checkStockRepository.save(checkStock);
         }
     }
 
     @Override
     public CheckStockEntity create() {
-        CheckStockEntity checkStock = checkStockRepository.findActiveCheckStock().orElse(null);
-        if (checkStock != null) {
-            // send websocket to inform that a check stock is already in progress
-        } else  {
-            checkStock = CheckStockEntity.builder()
-                .status(CheckStockStatus.InProgress)
-                .startDate(Timestamp.valueOf(LocalDateTime.now()))
-                .build();
+        
+        if (checkStockRepository.findActiveCheckStock().isPresent()) {
+            messagingTemplate.convertAndSend("/topic/createCheckStockFailed", "Check stock already in progress");
+            return null;
         }
         
-        return checkStockRepository.save(checkStock);
+        return checkStockRepository.save(CheckStockEntity.builder()
+            .status(CheckStockStatus.InProgress)
+            .startDate(Timestamp.valueOf(LocalDateTime.now()))
+            .build());
     }
 
     @Override

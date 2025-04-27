@@ -18,6 +18,7 @@ import com.muffinmanager.api.muffinmanagerapi.model.Stock.ProductStock.database.
 import com.muffinmanager.api.muffinmanagerapi.repository.IMovementStockRepository;
 import com.muffinmanager.api.muffinmanagerapi.repository.IProductStockRepository;
 import com.muffinmanager.api.muffinmanagerapi.repository.IUserRepository;
+import com.muffinmanager.api.muffinmanagerapi.service.Stock.CheckStock.ICheckStockService;
 
 @Service
 public class MovementStockService implements IMovementStockService {
@@ -32,6 +33,8 @@ public class MovementStockService implements IMovementStockService {
     private JwtAutenticationFilter jwtFilter;
     @Autowired
     private IJwtService jwtService;
+    @Autowired
+    private ICheckStockService checkStockService;
 
     @Override
     public MovementStockDto insert(MovementStockDto movementStockDto) {
@@ -95,6 +98,7 @@ public class MovementStockService implements IMovementStockService {
             if (productStockRepository.save(productStock) != null) {
                 movementStock.setStatus(MovementStatus.Completed);
                 movementStock.setEndDate(Timestamp.valueOf(LocalDateTime.now()));
+                checkStockService.verify();
                 return movementStockRepository.save(movementStock).toDto();
             }
         }

@@ -21,6 +21,7 @@ import com.muffinmanager.api.muffinmanagerapi.model.MuffinShape.database.MuffinS
 import com.muffinmanager.api.muffinmanagerapi.model.Stock.ProductStock.database.ProductStockEntity;
 import com.muffinmanager.api.muffinmanagerapi.model.Stock.ProductStock.dto.ProductStockRequestDto;
 import com.muffinmanager.api.muffinmanagerapi.model.Stock.ProductStock.dto.ProductStockResponseDto;
+import com.muffinmanager.api.muffinmanagerapi.repository.ICheckStockRepository;
 import com.muffinmanager.api.muffinmanagerapi.repository.IPackagePrintRepository;
 import com.muffinmanager.api.muffinmanagerapi.repository.IProductRepository;
 import com.muffinmanager.api.muffinmanagerapi.repository.IProductStockRepository;
@@ -37,6 +38,8 @@ public class ProductStockService implements IProductStockService{
     private IProductRepository productRepository;
     @Autowired
     private ICheckStockService checkStockService;
+    @Autowired
+    private ICheckStockRepository checkStockRepository;
 
     
     
@@ -85,6 +88,8 @@ public class ProductStockService implements IProductStockService{
 
                 return new Object() {
                     @SuppressWarnings("unused")
+                    public final boolean hasToCheck = checkStockRepository.findActiveCheckStock().isPresent();
+                    @SuppressWarnings("unused")
                     public final String brandName = brand.getName();
                     @SuppressWarnings("unused")
                     public final String brandAliasVersion = brand.getAliasVersion();
@@ -118,12 +123,15 @@ public class ProductStockService implements IProductStockService{
                                                 .collect(Collectors.toList());
                                         };
                                     })
+                                    .filter(productEntry -> productEntry.stockDetails.size() != 0)
                                     .collect(Collectors.toList());
                             };
                         })
+                        .filter(muffinShapeEntry -> muffinShapeEntry.products.size() != 0)
                         .collect(Collectors.toList());
                 };
             })
+            .filter(brandEntry -> brandEntry.muffinShapes.size() != 0)
             .collect(Collectors.toList());
     }
 
@@ -166,7 +174,9 @@ public class ProductStockService implements IProductStockService{
             entity.setObservations(productStockDto.getObservations());
             entity.setLastCheckDate(entity.getStock() != productStockDto.getStock() ? Timestamp.valueOf(LocalDateTime.now()) : entity.getLastCheckDate());
             entity.setStock(productStockDto.getStock());
-            return productStockRepository.save(entity).toResponseDto();
+            ProductStockEntity savedEntity = productStockRepository.save(entity);
+            checkStockService.verify();
+            return savedEntity.toResponseDto();
         }
         return null;
     }
@@ -174,6 +184,7 @@ public class ProductStockService implements IProductStockService{
     @Override
     public void deleteById(int id) {
         productStockRepository.deleteById(id);
+        checkStockService.verify();
     }
 
 
@@ -184,6 +195,7 @@ public class ProductStockService implements IProductStockService{
         if (entity != null) {
             entity.setLastCheckDate(Timestamp.valueOf(LocalDateTime.now()));
             productStockRepository.save(entity);
+            checkStockService.verify();
         }
     }
 

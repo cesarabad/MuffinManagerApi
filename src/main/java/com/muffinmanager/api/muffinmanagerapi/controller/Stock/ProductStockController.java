@@ -72,6 +72,8 @@ public class ProductStockController {
     @PostMapping("update")
     public ResponseEntity<ProductStockResponseDto> update(@RequestBody ProductStockRequestDto productStockDto) {
         ProductStockResponseDto updatedEntity = productStockService.update(productStockDto);
+        UserSafeDto user = userRepository.findByDni(jwtService.getDniFromToken(jwtFilter.getToken())).orElseThrow().toSafeDto();
+        messagingTemplate.convertAndSend("/topic/global", WebSocketMessage.builder().dictionaryKey("ws.stock.productStock.updated").user(user).build());
         messagingTemplate.convertAndSend("/topic" + BASE_URL, productStockDto);
         return ResponseEntity.ok(updatedEntity);
     }
