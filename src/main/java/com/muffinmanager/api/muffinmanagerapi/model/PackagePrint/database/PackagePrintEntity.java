@@ -52,6 +52,7 @@ public class PackagePrintEntity {
 
     public PackagePrintLightDto toLightDto() {
         return PackagePrintLightDto.builder()
+            .id(id)
             .reference(packagePrintReference)
             .description(description)
             .build();

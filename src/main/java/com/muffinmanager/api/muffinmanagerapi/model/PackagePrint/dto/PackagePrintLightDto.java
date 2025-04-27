@@ -12,6 +12,7 @@ import lombok.Setter;
 @Setter
 @Builder
 public class PackagePrintLightDto {
+    private int id;
     private String reference;
     private String description;
 }
