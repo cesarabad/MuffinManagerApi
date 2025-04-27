@@ -85,6 +85,7 @@ public class ProductStockEntity {
             .stock(stock)
             .observations(observations)
             .lastCheckDate(lastCheckDate != null ? lastCheckDate.toLocalDateTime() : null)
+            .hasToCheck(false)
             .reserves(reserves != null ? reserves.stream().map(MovementStockEntity::toActiveReserveDto).toList() : null)
             .build();
     }

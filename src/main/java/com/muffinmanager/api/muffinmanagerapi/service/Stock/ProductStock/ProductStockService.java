@@ -24,6 +24,7 @@ import com.muffinmanager.api.muffinmanagerapi.model.Stock.ProductStock.dto.Produ
 import com.muffinmanager.api.muffinmanagerapi.repository.IPackagePrintRepository;
 import com.muffinmanager.api.muffinmanagerapi.repository.IProductRepository;
 import com.muffinmanager.api.muffinmanagerapi.repository.IProductStockRepository;
+import com.muffinmanager.api.muffinmanagerapi.service.Stock.CheckStock.ICheckStockService;
 
 @Service
 public class ProductStockService implements IProductStockService{
@@ -34,6 +35,8 @@ public class ProductStockService implements IProductStockService{
     private IPackagePrintRepository packagePrintRepository;
     @Autowired
     private IProductRepository productRepository;
+    @Autowired
+    private ICheckStockService checkStockService;
 
     
     
@@ -107,7 +110,11 @@ public class ProductStockService implements IProductStockService{
                                             public final ProductLightDto product = productEntity.toLightDto();
                                             public final List<Object> stockDetails = stockList.stream()
                                                 .sorted(Comparator.comparing(ProductStockEntity::getBatch))
+                                                .filter(productStock -> productStock.getStock() != 0 || productStock.getReserves().size() != 0)
                                                 .map(ProductStockEntity::toResponseDto)
+                                                .peek(productStock -> {
+                                                    productStock.setHasToCheck(checkStockService.hasToCheckStock(productStock.getLastCheckDate()));
+                                                })
                                                 .collect(Collectors.toList());
                                         };
                                     })
@@ -132,6 +139,9 @@ public class ProductStockService implements IProductStockService{
         return productStockRepository.findByProductId(productId)
             .map(entities -> StreamSupport.stream(((Iterable<ProductStockEntity>) entities).spliterator(), false)
                 .map(ProductStockEntity::toResponseDto)
+                .peek(productStock -> {
+                    productStock.setHasToCheck(checkStockService.hasToCheckStock(productStock.getLastCheckDate()));
+                })
                 .sorted(Comparator.comparing(ProductStockResponseDto::getBatch))
                 .collect(Collectors.toList()))
             .orElseGet(List::of);
@@ -154,8 +164,8 @@ public class ProductStockService implements IProductStockService{
             entity.setPackagePrint(packagePrintRepository.findById(productStockDto.getPackagePrintId()).orElse(null));
             entity.setBatch(productStockDto.getBatch());
             entity.setObservations(productStockDto.getObservations());
+            entity.setLastCheckDate(entity.getStock() != productStockDto.getStock() ? Timestamp.valueOf(LocalDateTime.now()) : entity.getLastCheckDate());
             entity.setStock(productStockDto.getStock());
-            entity.setLastCheckDate(productStockDto.getLastCheckDate() != null ? Timestamp.valueOf(productStockDto.getLastCheckDate()) : entity.getLastCheckDate());
             return productStockRepository.save(entity).toResponseDto();
         }
         return null;

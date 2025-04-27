@@ -29,7 +29,7 @@ public class CheckStockEntity {
     private int id;
     @Enumerated(EnumType.STRING)
     private CheckStockStatus status;
-    @Column(name = "creationdate", nullable = false)
+    @Column(name = "startdate", nullable = false)
     private Timestamp startDate;
     @Column(name = "enddate")
     private Timestamp endDate;

@@ -23,5 +23,6 @@ public class ProductStockResponseDto {
     private int stock;
     private String observations;
     private LocalDateTime lastCheckDate;
+    private boolean hasToCheck;
     private List<ActiveReserveStockDto> reserves;
 }
