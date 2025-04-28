@@ -200,9 +200,9 @@ public class ProductStockService implements IProductStockService{
                     .observations(null)
                     .status(MovementStatus.Completed)
                     .build());
+                    entity.setStock(productStockDto.getStock());
+                    entity.setDeleted(entity.getStock() == 0 && entity.getReserves().size() == 0);
             }
-            entity.setStock(productStockDto.getStock());
-            entity.setDeleted(entity.getStock() == 0 && entity.getReserves().size() == 0);
             ProductStockEntity savedEntity = productStockRepository.save(entity);
             checkStockService.verify();
             return savedEntity.toResponseDto();
