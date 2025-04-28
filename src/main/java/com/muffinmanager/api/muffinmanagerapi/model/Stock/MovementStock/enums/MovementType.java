@@ -4,5 +4,6 @@ public enum MovementType {
     Entry,
     Assigned,
     Adjustment,
-    Reserve;
+    Reserve,
+    Delete
 }

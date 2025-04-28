@@ -215,6 +215,18 @@ public class ProductStockService implements IProductStockService{
         productStockRepository.findById(id).ifPresent(entity -> {
             entity.setDeleted(true);
             productStockRepository.save(entity);
+            movementStockRepository.save(MovementStockEntity.builder()
+                .productStock(entity)
+                .type(MovementType.Delete)
+                .responsible(userRepository.findByDni(jwtService.getDniFromToken(jwtFilter.getToken())).orElse(null))
+                .stockDifference(0)
+                .units(entity.getStock())
+                .destination(null)
+                .creationDate(Timestamp.valueOf(LocalDateTime.now()))
+                .endDate(Timestamp.valueOf(LocalDateTime.now()))
+                .observations(null)
+                .status(MovementStatus.Completed)
+                .build());
         });
         checkStockService.verify();
     }

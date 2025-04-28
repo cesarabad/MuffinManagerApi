@@ -51,6 +51,7 @@ public class MovementStockService implements IMovementStockService {
             case Reserve -> {
                 return insertReserve(movementStockDto);
             }
+            case Delete -> {}
         }
         throw new IllegalArgumentException("Invalid movement type: " + movementStockDto.getType());
     }
@@ -217,6 +218,9 @@ public class MovementStockService implements IMovementStockService {
             }
             case Reserve -> {
                 return updateReserve(movementStockDto);
+            }
+            case Delete -> {
+                throw new UnsupportedOperationException("Delete movement update not implemented yet.");
             }
         }
         throw new IllegalArgumentException("Invalid movement type: " + movementStockDto.getType());
