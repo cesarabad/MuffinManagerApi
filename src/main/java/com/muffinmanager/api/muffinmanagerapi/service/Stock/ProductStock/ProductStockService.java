@@ -16,15 +16,22 @@ import com.muffinmanager.api.muffinmanagerapi.model.ProductData.Product.dto.Prod
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.muffinmanager.api.muffinmanagerapi.jwt.IJwtService;
+import com.muffinmanager.api.muffinmanagerapi.jwt.JwtAutenticationFilter;
 import com.muffinmanager.api.muffinmanagerapi.model.Brand.database.BrandEntity;
 import com.muffinmanager.api.muffinmanagerapi.model.MuffinShape.database.MuffinShapeEntity;
+import com.muffinmanager.api.muffinmanagerapi.model.Stock.MovementStock.database.MovementStockEntity;
+import com.muffinmanager.api.muffinmanagerapi.model.Stock.MovementStock.enums.MovementStatus;
+import com.muffinmanager.api.muffinmanagerapi.model.Stock.MovementStock.enums.MovementType;
 import com.muffinmanager.api.muffinmanagerapi.model.Stock.ProductStock.database.ProductStockEntity;
 import com.muffinmanager.api.muffinmanagerapi.model.Stock.ProductStock.dto.ProductStockRequestDto;
 import com.muffinmanager.api.muffinmanagerapi.model.Stock.ProductStock.dto.ProductStockResponseDto;
 import com.muffinmanager.api.muffinmanagerapi.repository.ICheckStockRepository;
+import com.muffinmanager.api.muffinmanagerapi.repository.IMovementStockRepository;
 import com.muffinmanager.api.muffinmanagerapi.repository.IPackagePrintRepository;
 import com.muffinmanager.api.muffinmanagerapi.repository.IProductRepository;
 import com.muffinmanager.api.muffinmanagerapi.repository.IProductStockRepository;
+import com.muffinmanager.api.muffinmanagerapi.repository.IUserRepository;
 import com.muffinmanager.api.muffinmanagerapi.service.Stock.CheckStock.ICheckStockService;
 
 @Service
@@ -40,7 +47,14 @@ public class ProductStockService implements IProductStockService{
     private ICheckStockService checkStockService;
     @Autowired
     private ICheckStockRepository checkStockRepository;
-
+    @Autowired
+    private IMovementStockRepository movementStockRepository;
+    @Autowired
+    private IUserRepository userRepository;
+    @Autowired
+    private JwtAutenticationFilter jwtFilter;
+    @Autowired
+    private IJwtService jwtService;
     
     
     public ProductStockEntity getEntityByDto(ProductStockRequestDto dto) {
@@ -53,7 +67,6 @@ public class ProductStockService implements IProductStockService{
             .isDeleted(false)
             .observations(dto.getObservations())
             .lastCheckDate(dto.getLastCheckDate() != null ? Timestamp.valueOf(dto.getLastCheckDate()) : Timestamp.valueOf(LocalDateTime.now()))
-            
             .build();
 
     }
@@ -174,6 +187,20 @@ public class ProductStockService implements IProductStockService{
             entity.setBatch(productStockDto.getBatch());
             entity.setObservations(productStockDto.getObservations());
             entity.setLastCheckDate(entity.getStock() != productStockDto.getStock() ? Timestamp.valueOf(LocalDateTime.now()) : entity.getLastCheckDate());
+            if (entity.getStock() != productStockDto.getStock()) {
+                movementStockRepository.save(MovementStockEntity.builder()
+                    .productStock(entity)
+                    .type(MovementType.Adjustment)
+                    .responsible(userRepository.findByDni(jwtService.getDniFromToken(jwtFilter.getToken())).orElse(null))
+                    .stockDifference(productStockDto.getStock() - entity.getStock())
+                    .units(productStockDto.getStock())
+                    .destination(null)
+                    .creationDate(Timestamp.valueOf(LocalDateTime.now()))
+                    .endDate(Timestamp.valueOf(LocalDateTime.now()))
+                    .observations(null)
+                    .status(MovementStatus.Completed)
+                    .build());
+            }
             entity.setStock(productStockDto.getStock());
             entity.setDeleted(entity.getStock() == 0 && entity.getReserves().size() == 0);
             ProductStockEntity savedEntity = productStockRepository.save(entity);
