@@ -50,6 +50,7 @@ public class ProductStockService implements IProductStockService{
             .packagePrint(packagePrintRepository.findById(dto.getPackagePrintId()).orElse(null))
             .batch(dto.getBatch())
             .stock(dto.getStock())
+            .isDeleted(false)
             .observations(dto.getObservations())
             .lastCheckDate(dto.getLastCheckDate() != null ? Timestamp.valueOf(dto.getLastCheckDate()) : Timestamp.valueOf(LocalDateTime.now()))
             
@@ -115,7 +116,7 @@ public class ProductStockService implements IProductStockService{
                                             public final ProductLightDto product = productEntity.toLightDto();
                                             public final List<Object> stockDetails = stockList.stream()
                                                 .sorted(Comparator.comparing(ProductStockEntity::getBatch))
-                                                .filter(productStock -> productStock.getStock() != 0 || productStock.getReserves().size() != 0)
+                                                .filter(productStock -> !productStock.isDeleted())
                                                 .map(ProductStockEntity::toResponseDto)
                                                 .peek(productStock -> {
                                                     productStock.setHasToCheck(checkStockService.hasToCheckStock(productStock.getLastCheckDate()));
@@ -174,6 +175,7 @@ public class ProductStockService implements IProductStockService{
             entity.setObservations(productStockDto.getObservations());
             entity.setLastCheckDate(entity.getStock() != productStockDto.getStock() ? Timestamp.valueOf(LocalDateTime.now()) : entity.getLastCheckDate());
             entity.setStock(productStockDto.getStock());
+            entity.setDeleted(entity.getStock() == 0 && entity.getReserves().size() == 0);
             ProductStockEntity savedEntity = productStockRepository.save(entity);
             checkStockService.verify();
             return savedEntity.toResponseDto();

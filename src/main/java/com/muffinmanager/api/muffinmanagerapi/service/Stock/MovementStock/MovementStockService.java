@@ -77,6 +77,7 @@ public class MovementStockService implements IMovementStockService {
         if (productStock != null) {
             MovementStockEntity movementStock = getEntityByDto(movementStockDto, productStock);
             productStock.setStock(productStock.getStock() - movementStockDto.getUnits());
+            productStock.setDeleted(productStock.getStock() == 0 && productStock.getReserves().isEmpty());
             if (productStockRepository.save(productStock) != null) {
                 movementStock.setStockDifference(-movementStock.getUnits());
                 movementStock.setStatus(MovementStatus.Completed);
@@ -95,6 +96,7 @@ public class MovementStockService implements IMovementStockService {
             movementStock.setStockDifference(movementStockDto.getUnits() - productStock.getStock());
             productStock.setStock(movementStockDto.getUnits());
             productStock.setLastCheckDate(Timestamp.valueOf(LocalDateTime.now()));
+            productStock.setDeleted(productStock.getStock() == 0 && productStock.getReserves().isEmpty());
             if (productStockRepository.save(productStock) != null) {
                 movementStock.setStatus(MovementStatus.Completed);
                 movementStock.setEndDate(Timestamp.valueOf(LocalDateTime.now()));
@@ -157,10 +159,12 @@ public class MovementStockService implements IMovementStockService {
             ProductStockEntity productStock = movementStock.getProductStock();
             if (productStock != null) {
                 productStock.setStock(productStock.getStock() - movementStock.getStockDifference());
+                productStock.setDeleted(productStock.getStock() == 0 && productStock.getReserves().isEmpty());
                 productStockRepository.save(productStock);
                 movementStock.setStatus(MovementStatus.Canceled);
                 movementStock.setEndDate(Timestamp.valueOf(LocalDateTime.now()));
-                return movementStockRepository.save(movementStock).toDto();
+                MovementStockEntity canceledMovementStock = movementStockRepository.save(movementStock);
+                return canceledMovementStock.toDto();
             }
         }
         throw new IllegalArgumentException("Movement stock not found for ID: " + movementStockId);
@@ -175,7 +179,13 @@ public class MovementStockService implements IMovementStockService {
 
                 movementStock.setStatus(MovementStatus.Completed);
                 movementStock.setEndDate(Timestamp.valueOf(LocalDateTime.now()));
-                return movementStockRepository.save(movementStock).toDto();
+                MovementStockEntity reserveMovementStock = movementStockRepository.save(movementStock);
+                productStockRepository.findById(movementStock.getProductStock().getId()).ifPresent(productStock -> {
+                        productStock.setDeleted(productStock.getStock() == 0 && productStock.getReserves().isEmpty());
+                        productStockRepository.save(productStock);
+                    }
+                );
+                return reserveMovementStock.toDto();
             
         }
         throw new IllegalArgumentException("Movement stock not found for ID: " + movementStockId);

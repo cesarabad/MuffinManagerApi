@@ -57,6 +57,9 @@ public class ProductStockEntity {
     @Column(name = "lastcheckdate")
     private Timestamp lastCheckDate;
 
+    @Column(name = "isdeleted", nullable = false)
+    private boolean isDeleted;
+
     @SuppressWarnings("deprecation")
     @OneToMany(mappedBy = "productStock")
     @Where(clause = "type = 'Reserve' AND status = 'InProgress'")
