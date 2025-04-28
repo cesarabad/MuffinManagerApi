@@ -212,7 +212,10 @@ public class ProductStockService implements IProductStockService{
 
     @Override
     public void deleteById(int id) {
-        productStockRepository.deleteById(id);
+        productStockRepository.findById(id).ifPresent(entity -> {
+            entity.setDeleted(true);
+            productStockRepository.save(entity);
+        });
         checkStockService.verify();
     }
 

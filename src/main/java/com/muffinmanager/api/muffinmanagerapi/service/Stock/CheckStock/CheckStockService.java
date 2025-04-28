@@ -28,7 +28,7 @@ public class CheckStockService implements ICheckStockService {
         
         if (checkStock != null && 
             StreamSupport.stream(productStockRepository.findAll().spliterator(), false)
-            .filter(productStock -> (productStock.getStock() != 0 || productStock.getReserves().size() != 0) && 
+            .filter(productStock -> (!productStock.isDeleted()) && 
                     productStock.getLastCheckDate() != null && productStock.getLastCheckDate().before(checkStock.getStartDate()))
                     .toList().size() == 0) {
             

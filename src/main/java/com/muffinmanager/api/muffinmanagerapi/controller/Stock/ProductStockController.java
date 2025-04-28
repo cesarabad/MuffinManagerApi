@@ -20,7 +20,6 @@ import jakarta.websocket.server.PathParam;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
@@ -60,7 +59,7 @@ public class ProductStockController {
         return ResponseEntity.ok(productStockService.getAllByProductId(productId));
     }
 
-    @DeleteMapping("delete/{id}")
+    @PostMapping("delete/{id}")
     public ResponseEntity<Void> deleteById(@PathVariable int id) {
         productStockService.deleteById(id);
         UserSafeDto user = userRepository.findByDni(jwtService.getDniFromToken(jwtFilter.getToken())).orElseThrow().toSafeDto();
