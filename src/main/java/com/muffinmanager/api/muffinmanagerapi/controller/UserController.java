@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.muffinmanager.api.muffinmanagerapi.model.User.LoginRequest;
 import com.muffinmanager.api.muffinmanagerapi.model.User.LoginResponse;
 import com.muffinmanager.api.muffinmanagerapi.model.User.RegisterRequest;
+import com.muffinmanager.api.muffinmanagerapi.model.User.dto.UpdateProfileUserDto;
 import com.muffinmanager.api.muffinmanagerapi.model.User.dto.UserSafeDto;
 import com.muffinmanager.api.muffinmanagerapi.service.auth.IUserService;
 
@@ -56,6 +57,14 @@ public class UserController {
         }
     }
 
+    @PostMapping("/updateProfile")
+    public ResponseEntity<LoginResponse> updateProfile(@RequestBody UpdateProfileUserDto updatedUserDto) {
+        try {
+            return ResponseEntity.ok(userService.profileUpdate(updatedUserDto));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(null);
+        }
+    }
 
     @GetMapping("/all") 
     public ResponseEntity<List<UserSafeDto>> getAllUsers() {

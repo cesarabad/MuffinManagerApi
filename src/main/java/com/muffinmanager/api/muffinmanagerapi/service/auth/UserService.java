@@ -14,6 +14,7 @@ import com.muffinmanager.api.muffinmanagerapi.model.User.LoginRequest;
 import com.muffinmanager.api.muffinmanagerapi.model.User.LoginResponse;
 import com.muffinmanager.api.muffinmanagerapi.model.User.RegisterRequest;
 import com.muffinmanager.api.muffinmanagerapi.model.User.database.UserEntity;
+import com.muffinmanager.api.muffinmanagerapi.model.User.dto.UpdateProfileUserDto;
 import com.muffinmanager.api.muffinmanagerapi.model.User.dto.UserSafeDto;
 import com.muffinmanager.api.muffinmanagerapi.repository.IUserRepository;
 
@@ -71,6 +72,18 @@ public class UserService implements IUserService{
             .secondName(user.getSecondName())
             .build()).toList();
     }
-    
 
+    @Override
+    public LoginResponse profileUpdate(UpdateProfileUserDto updatedUserDto) {
+        UserEntity userEntity = userRepository.findById(updatedUserDto.getId()).orElseThrow();
+        if (userEntity != null) {
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userEntity.getDni(), updatedUserDto.getPassword())); 
+            userEntity.setDni(updatedUserDto.getDni());
+            userEntity.setName(updatedUserDto.getName());
+            userEntity.setSecondName(updatedUserDto.getSecondName());
+            userEntity.setPassword(passwordEncoder.encode(updatedUserDto.getNewPassword()));
+            return generateLoginResponse(userRepository.save(userEntity));
+        }
+        throw new RuntimeException("User not found");
+    }    
 }
