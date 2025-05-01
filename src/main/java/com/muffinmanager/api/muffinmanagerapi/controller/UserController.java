@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.muffinmanager.api.muffinmanagerapi.model.User.LoginRequest;
 import com.muffinmanager.api.muffinmanagerapi.model.User.LoginResponse;
 import com.muffinmanager.api.muffinmanagerapi.model.User.RegisterRequest;
+import com.muffinmanager.api.muffinmanagerapi.model.User.database.stats.UserStatsEntity;
 import com.muffinmanager.api.muffinmanagerapi.model.User.dto.UpdateUserDto;
 import com.muffinmanager.api.muffinmanagerapi.model.User.dto.UserSafeDto;
 import com.muffinmanager.api.muffinmanagerapi.service.auth.IUserService;
@@ -70,6 +72,15 @@ public class UserController {
     public ResponseEntity<List<UserSafeDto>> getAllUsers() {
         try {
             return ResponseEntity.ok(userService.getAllUsers());
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(null);
+        }
+    }
+
+    @GetMapping("/stats/{userId}")
+    public ResponseEntity<UserStatsEntity> getUserStats(@PathVariable int userId) {
+        try {
+            return ResponseEntity.ok(userService.getUserStats(userId));
         } catch (Exception e) {
             return ResponseEntity.status(500).body(null);
         }

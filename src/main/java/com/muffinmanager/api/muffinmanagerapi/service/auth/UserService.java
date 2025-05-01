@@ -16,9 +16,11 @@ import com.muffinmanager.api.muffinmanagerapi.model.User.LoginResponse;
 import com.muffinmanager.api.muffinmanagerapi.model.User.RegisterRequest;
 import com.muffinmanager.api.muffinmanagerapi.model.User.database.UserEntity;
 import com.muffinmanager.api.muffinmanagerapi.model.User.database.permissions.Permissions;
+import com.muffinmanager.api.muffinmanagerapi.model.User.database.stats.UserStatsEntity;
 import com.muffinmanager.api.muffinmanagerapi.model.User.dto.UpdateUserDto;
 import com.muffinmanager.api.muffinmanagerapi.model.User.dto.UserSafeDto;
 import com.muffinmanager.api.muffinmanagerapi.repository.IUserRepository;
+import com.muffinmanager.api.muffinmanagerapi.repository.IUserStatsRepository;
 
 @Service
 public class UserService implements IUserService{
@@ -33,6 +35,8 @@ public class UserService implements IUserService{
     private AuthenticationManager authenticationManager;
     @Autowired
     JwtAutenticationFilter jwtFilter;
+    @Autowired
+    private IUserStatsRepository userStatsRepository;
     
 
     @Override
@@ -106,8 +110,14 @@ public class UserService implements IUserService{
             }
 
             return isSameUser ? generateLoginResponse(userRepository.save(userEntity)) : null;
+            // Send ws message to update user modifyed
         }
 
         throw new RuntimeException("Unauthorized to update user");
+    }
+
+    @Override
+    public UserStatsEntity getUserStats(int userId) {
+        return userStatsRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
     }
 }

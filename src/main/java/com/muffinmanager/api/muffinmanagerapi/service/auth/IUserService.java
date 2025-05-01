@@ -5,6 +5,7 @@ import java.util.List;
 import com.muffinmanager.api.muffinmanagerapi.model.User.LoginRequest;
 import com.muffinmanager.api.muffinmanagerapi.model.User.LoginResponse;
 import com.muffinmanager.api.muffinmanagerapi.model.User.RegisterRequest;
+import com.muffinmanager.api.muffinmanagerapi.model.User.database.stats.UserStatsEntity;
 import com.muffinmanager.api.muffinmanagerapi.model.User.dto.UpdateUserDto;
 import com.muffinmanager.api.muffinmanagerapi.model.User.dto.UserSafeDto;
 
@@ -13,4 +14,5 @@ public interface IUserService {
     public LoginResponse register(RegisterRequest request);
     public List<UserSafeDto> getAllUsers();
     public LoginResponse update(UpdateUserDto userSafeDto);
+    public UserStatsEntity getUserStats(int userId);
 }
