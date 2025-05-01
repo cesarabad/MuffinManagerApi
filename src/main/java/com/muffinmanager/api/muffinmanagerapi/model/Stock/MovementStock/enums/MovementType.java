@@ -5,5 +5,6 @@ public enum MovementType {
     Assigned,
     Adjustment,
     Reserve,
-    Delete
+    Delete,
+    Checked
 }

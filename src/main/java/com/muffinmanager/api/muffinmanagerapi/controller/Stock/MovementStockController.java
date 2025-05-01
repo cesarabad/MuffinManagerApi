@@ -54,7 +54,7 @@ public class MovementStockController {
             case Reserve -> {
                 messagingTemplate.convertAndSend("/topic/global", WebSocketMessage.builder().dictionaryKey("ws.stock.movementStock.created.reserve").user(user).build());
             }
-            case Delete -> {}
+            case Delete, Checked -> {}
         }
         messagingTemplate.convertAndSend("/topic" + BASE_URL, movementStockDto);
         return ResponseEntity.ok(createdEntity);
@@ -80,6 +80,7 @@ public class MovementStockController {
             case Delete -> {
                 messagingTemplate.convertAndSend("/topic/global", WebSocketMessage.builder().dictionaryKey("ws.stock.movementStock.undoMovement.delete").user(user).build());
             }
+            case Checked -> {}
         }
         messagingTemplate.convertAndSend("/topic" + BASE_URL, movementStockDto);
         return movementStockDto;
@@ -111,7 +112,7 @@ public class MovementStockController {
             case Reserve -> {
             messagingTemplate.convertAndSend("/topic/global", WebSocketMessage.builder().dictionaryKey("ws.stock.movementStock.updated.reserve").user(user).build());
             }
-            case Delete -> {}
+            case Delete, Checked -> {}
         }
         messagingTemplate.convertAndSend("/topic" + BASE_URL, movementStockDto);
         return ResponseEntity.ok(updatedEntity);

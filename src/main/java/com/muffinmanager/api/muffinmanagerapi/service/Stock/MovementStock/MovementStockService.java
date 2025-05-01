@@ -51,7 +51,7 @@ public class MovementStockService implements IMovementStockService {
             case Reserve -> {
                 return insertReserve(movementStockDto);
             }
-            case Delete -> {}
+            case Delete, Checked -> {}
         }
         throw new IllegalArgumentException("Invalid movement type: " + movementStockDto.getType());
     }
@@ -140,6 +140,7 @@ public class MovementStockService implements IMovementStockService {
     public List<MovementStockDto> getHistoric() {
         return StreamSupport.stream(movementStockRepository.findAll().spliterator(), false)
             .map(MovementStockEntity::toDto)
+            .filter(movementStock -> movementStock.getType() != MovementType.Checked)
             .sorted((a, b) -> b.getCreationDate().compareTo(a.getCreationDate()))
             .toList();
     }
@@ -148,6 +149,7 @@ public class MovementStockService implements IMovementStockService {
     public List<MovementStockDto> getHistoricByProductStockId(int productStockId) {
         return StreamSupport.stream(movementStockRepository.findByProductStockId(productStockId).orElseThrow().spliterator(), false)
             .map(MovementStockEntity::toDto)
+            .filter(movementStock -> movementStock.getType() != MovementType.Checked)
             .sorted((a, b) -> b.getCreationDate().compareTo(a.getCreationDate()))
             .toList();
     }
@@ -197,7 +199,8 @@ public class MovementStockService implements IMovementStockService {
         return StreamSupport.stream(movementStockRepository.findAll().spliterator(), false)
             .filter(movementStock -> movementStock.getProductStock() != null 
                 && movementStock.getProductStock().getProduct() != null 
-                && movementStock.getProductStock().getProduct().getId() == productId)
+                && movementStock.getProductStock().getProduct().getId() == productId
+                && movementStock.getType() != MovementType.Checked)
             .map(MovementStockEntity::toDto)
             
             .sorted((a, b) -> b.getCreationDate().compareTo(a.getCreationDate()))
@@ -207,20 +210,11 @@ public class MovementStockService implements IMovementStockService {
     @Override
     public MovementStockDto update(MovementStockDto movementStockDto) {
         switch (movementStockDto.getType()) {
-            case Entry -> {
-                throw new UnsupportedOperationException("Entry movement update not implemented yet.");
-            }
-            case Assigned -> {
-                throw new UnsupportedOperationException("Assigned movement update not implemented yet.");
-            }
-            case Adjustment -> {
-                throw new UnsupportedOperationException("Adjustment movement update not implemented yet.");
-            }
             case Reserve -> {
                 return updateReserve(movementStockDto);
             }
-            case Delete -> {
-                throw new UnsupportedOperationException("Delete movement update not implemented yet.");
+            case Delete, Checked, Entry, Assigned, Adjustment -> {
+                throw new UnsupportedOperationException(movementStockDto.getType() + " movement update not implemented yet.");
             }
         }
         throw new IllegalArgumentException("Invalid movement type: " + movementStockDto.getType());

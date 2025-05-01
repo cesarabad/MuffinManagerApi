@@ -238,7 +238,20 @@ public class ProductStockService implements IProductStockService{
         ProductStockEntity entity = productStockRepository.findById(id).orElse(null);
         if (entity != null) {
             entity.setLastCheckDate(Timestamp.valueOf(LocalDateTime.now()));
-            productStockRepository.save(entity);
+            if (productStockRepository.save(entity) != null) {
+                movementStockRepository.save(MovementStockEntity.builder()
+                    .productStock(entity)
+                    .type(MovementType.Checked)
+                    .responsible(userRepository.findByDni(jwtService.getDniFromToken(jwtFilter.getToken())).orElse(null))
+                    .stockDifference(0)
+                    .units(entity.getStock())
+                    .destination(null)
+                    .creationDate(Timestamp.valueOf(LocalDateTime.now()))
+                    .endDate(Timestamp.valueOf(LocalDateTime.now()))
+                    .observations(null)
+                    .status(MovementStatus.Completed)
+                    .build());
+            }
             checkStockService.verify();
         }
     }

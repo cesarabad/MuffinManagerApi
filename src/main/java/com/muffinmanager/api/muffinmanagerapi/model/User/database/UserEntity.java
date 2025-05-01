@@ -2,6 +2,7 @@ package com.muffinmanager.api.muffinmanagerapi.model.User.database;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import java.util.Collection;
 import java.util.Set;
@@ -30,6 +31,7 @@ import jakarta.persistence.Table;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
 @Table(name = "User")
 public class UserEntity implements UserDetails{
 
@@ -48,6 +50,9 @@ public class UserEntity implements UserDetails{
     
     @Column(name = "password", length = 255, nullable = false)
     private String password;
+
+    @Column(name = "isdisabled", nullable = false)
+    private boolean isDisabled;
     
     @ManyToMany
     @JoinTable(name = "usergroup",

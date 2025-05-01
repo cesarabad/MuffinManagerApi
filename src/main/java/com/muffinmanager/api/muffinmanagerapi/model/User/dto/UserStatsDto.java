@@ -5,19 +5,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Data
 @Getter
-@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UpdateProfileUserDto {
-    private int id;
-    private String dni;
-    private String name;
-    private String secondName;
-    private String password;
-    private String newPassword;
+public class UserStatsDto {
+    private int totalMovements;
+    private int totalReserves;
+    private int totalStockChcecked;
 }
