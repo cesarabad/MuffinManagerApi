@@ -14,6 +14,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import com.muffinmanager.api.muffinmanagerapi.model.User.database.permissions.GroupEntity;
 import com.muffinmanager.api.muffinmanagerapi.model.User.database.permissions.PermissionEntity;
+import com.muffinmanager.api.muffinmanagerapi.model.User.dto.UserDetailedDto;
 import com.muffinmanager.api.muffinmanagerapi.model.User.dto.UserSafeDto;
 
 import jakarta.persistence.Column;
@@ -97,6 +98,19 @@ public class UserEntity implements UserDetails{
             .dni(dni)
             .name(name)
             .secondName(secondName)
+            .isDisabled(isDisabled)
+            .build();
+    }
+
+    public UserDetailedDto toDetailedDto() {
+        return UserDetailedDto.builder()
+            .id(id)
+            .dni(dni)
+            .name(name)
+            .secondName(secondName)
+            .isDisabled(isDisabled)
+            .permissions(getPermissions())
+            .groups(getGroups())
             .build();
     }
 }

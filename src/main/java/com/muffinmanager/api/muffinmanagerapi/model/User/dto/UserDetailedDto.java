@@ -1,4 +1,4 @@
-package com.muffinmanager.api.muffinmanagerapi.model.User;
+package com.muffinmanager.api.muffinmanagerapi.model.User.dto;
 
 import java.util.Set;
 
@@ -12,13 +12,14 @@ import lombok.NoArgsConstructor;
 
 @Data
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
-public class RegisterRequest {
+@AllArgsConstructor
+public class UserDetailedDto {
+    private int id;
     private String dni;
     private String name;
     private String secondName;
-    private String password;
+    private boolean isDisabled;
     private Set<PermissionEntity> permissions;
     private Set<GroupEntity> groups;
 }

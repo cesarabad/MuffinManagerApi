@@ -14,4 +14,5 @@ public class UserSafeDto {
     private String dni;
     private String name;
     private String secondName;
+    private boolean isDisabled;
 }

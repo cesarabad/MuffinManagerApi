@@ -60,7 +60,7 @@ public class MovementStockEntity {
             .productStockId(productStock != null ? productStock.getId() : 0)
             .productReference(productStock != null ? productStock.getProduct().getProductReference() : null)
             .batch(productStock != null ? productStock.getBatch() : null)
-            .packagePrintDescription(productStock != null ? productStock.getPackagePrint().getDescription() : null)
+            .packagePrintDescription(productStock != null && productStock.getPackagePrint() != null ? productStock.getPackagePrint().getDescription() : null)
             .type(type)
             .responsible(responsible != null ? responsible.toSafeDto() : null)
             .units(units)

@@ -4,6 +4,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,8 +14,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.muffinmanager.api.muffinmanagerapi.model.User.LoginRequest;
 import com.muffinmanager.api.muffinmanagerapi.model.User.LoginResponse;
 import com.muffinmanager.api.muffinmanagerapi.model.User.RegisterRequest;
+import com.muffinmanager.api.muffinmanagerapi.model.User.database.permissions.GroupEntity;
 import com.muffinmanager.api.muffinmanagerapi.model.User.database.stats.UserStatsEntity;
+import com.muffinmanager.api.muffinmanagerapi.model.User.dto.AvailableUserPermissionsDto;
 import com.muffinmanager.api.muffinmanagerapi.model.User.dto.UpdateUserDto;
+import com.muffinmanager.api.muffinmanagerapi.model.User.dto.UserDetailedDto;
 import com.muffinmanager.api.muffinmanagerapi.model.User.dto.UserSafeDto;
 import com.muffinmanager.api.muffinmanagerapi.service.auth.IUserService;
 
@@ -83,6 +87,52 @@ public class UserController {
             return ResponseEntity.ok(userService.getUserStats(userId));
         } catch (Exception e) {
             return ResponseEntity.status(500).body(null);
+        }
+    }
+
+    @GetMapping("/detailed/{id}")
+    public ResponseEntity<UserDetailedDto> getDetailedUserById(@PathVariable int id) {
+        try {
+            return ResponseEntity.ok(userService.getDetailedUserById(id));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(null);
+        }
+    }
+    @PostMapping("/toggleDisabled/{id}")
+    public ResponseEntity<Void> toggleDisableUser(@PathVariable int id) {
+        try {
+            userService.toggleDisableUser(id);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(500).build();
+        }
+    }
+
+    @GetMapping("/availablePermissions")
+    public ResponseEntity<AvailableUserPermissionsDto> getAvailableUserPermissions() {
+        try {
+            return ResponseEntity.ok(userService.getAvailableUserPermissions());
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(null);
+        }
+    }
+
+    @PostMapping("/saveGroup")
+    public ResponseEntity<GroupEntity> saveGroup(@RequestBody GroupEntity groupEntity) {
+        try {
+            return ResponseEntity.ok(userService.save(groupEntity));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).build();
+        }
+    }
+
+    @DeleteMapping("/deleteGroup/{id}")
+    public ResponseEntity<Void> deleteGroup(@PathVariable int id) {
+        try {
+            userService.deleteGroup(id);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(500).build();
         }
     }
 }
