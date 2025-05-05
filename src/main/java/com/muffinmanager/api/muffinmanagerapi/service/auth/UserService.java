@@ -148,7 +148,23 @@ public class UserService implements IUserService{
     public AvailableUserPermissionsDto getAvailableUserPermissions() {
         UserEntity userFromToken = userRepository.findByDni(jwtService.getDniFromToken(jwtFilter.getToken()))
             .orElseThrow(() -> new RuntimeException("Invalid token"));
-        if (userFromToken.getPermissionStrings().contains(Permissions.super_admin.name()) || userFromToken.getPermissionStrings().contains(Permissions.dev.name())) {
+        if (userFromToken.getPermissionStrings().contains(Permissions.super_admin.name())) {
+            Set<PermissionEntity> allPermissions = StreamSupport
+                .stream(permissionRepository.findAll().spliterator(), false)
+                .filter(permission -> !permission.getName().equals("dev"))
+                .collect(Collectors.toSet());
+
+            Set<GroupEntity> allGroups = StreamSupport
+                .stream(groupRepository.findAll().spliterator(), false)
+                .filter(group -> !group.getName().equals("Dev"))
+                .collect(Collectors.toSet());
+
+            return AvailableUserPermissionsDto.builder()
+                .permissions(allPermissions)
+                .groups(allGroups)
+                .build();
+        }
+        if (userFromToken.getPermissionStrings().contains(Permissions.dev.name())) {
             Set<PermissionEntity> allPermissions = StreamSupport
                 .stream(permissionRepository.findAll().spliterator(), false)
                 .collect(Collectors.toSet());
@@ -161,9 +177,6 @@ public class UserService implements IUserService{
                 .permissions(allPermissions)
                 .groups(allGroups)
                 .build();
-
-
-
         }
         return AvailableUserPermissionsDto.builder()
             .permissions(userFromToken.getPermissions())
