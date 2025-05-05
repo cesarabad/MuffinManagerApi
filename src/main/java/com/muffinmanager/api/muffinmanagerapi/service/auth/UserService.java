@@ -90,8 +90,8 @@ public class UserService implements IUserService{
     }
 
     private void validateUserPermissions(UserEntity userFromToken, UserEntity userToUpdate) {
-        if (userFromToken.getPermissionStrings().contains(Permissions.dev.name()) && userToUpdate.getPermissionStrings().contains(Permissions.super_admin.name()) || 
-            userFromToken.getPermissionStrings().contains(Permissions.super_admin.name()) && userToUpdate.getPermissionStrings().contains(Permissions.employee.name())) {
+        if (userFromToken.getPermissionStrings().contains(Permissions.super_admin.name()) && userToUpdate.getPermissionStrings().contains(Permissions.dev.name()) || 
+            userFromToken.getPermissionStrings().contains(Permissions.employee.name()) && (userToUpdate.getPermissionStrings().contains(Permissions.super_admin.name()) || userToUpdate.getPermissionStrings().contains(Permissions.dev.name()))) {
             throw new RuntimeException("Unauthorized to update user");
         }
     }
