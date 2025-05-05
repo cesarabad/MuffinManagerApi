@@ -89,6 +89,13 @@ public class UserService implements IUserService{
         return users.stream().map(user -> user.toSafeDto()).toList();
     }
 
+    private void validateUserPermissions(UserEntity userFromToken, UserEntity userToUpdate) {
+        if (userFromToken.getPermissionStrings().contains(Permissions.dev.name()) && userToUpdate.getPermissionStrings().contains(Permissions.super_admin.name()) || 
+            userFromToken.getPermissionStrings().contains(Permissions.super_admin.name()) && userToUpdate.getPermissionStrings().contains(Permissions.employee.name())) {
+            throw new RuntimeException("Unauthorized to update user");
+        }
+    }
+
     @Override
     public LoginResponse update(UpdateUserDto updatedUserDto) {
         UserEntity userEntity = userRepository.findById(updatedUserDto.getId())
@@ -96,10 +103,8 @@ public class UserService implements IUserService{
         UserEntity userFromToken = userRepository.findByDni(jwtService.getDniFromToken(jwtFilter.getToken()))
             .orElseThrow(() -> new RuntimeException("Invalid token"));
 
-        if ((userEntity.getPermissionStrings().contains(Permissions.dev.name()) && userFromToken.getPermissionStrings().contains(Permissions.super_admin.name()) || 
-            userEntity.getPermissionStrings().contains(Permissions.super_admin.name()) && userFromToken.getPermissionStrings().contains(Permissions.employee.name()))) {
-            throw new RuntimeException("Unauthorized to update user");
-        }
+        validateUserPermissions(userFromToken, userEntity);
+          
 
         boolean isSameUser = userEntity.getId() == userFromToken.getId();
         boolean hasManageUsersPermission = userFromToken.getPermissionStrings()
@@ -143,7 +148,10 @@ public class UserService implements IUserService{
 
     @Override
     public void toggleDisableUser(int id) {
+        UserEntity userFromToken = userRepository.findByDni(jwtService.getDniFromToken(jwtFilter.getToken()))
+            .orElseThrow(() -> new RuntimeException("Invalid token"));
         UserEntity user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
+        validateUserPermissions(userFromToken, user);
         user.setDisabled(!user.isDisabled());
         userRepository.save(user);
         // Send ws message to update user modifyed
