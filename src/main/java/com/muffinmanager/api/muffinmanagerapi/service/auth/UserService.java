@@ -96,6 +96,11 @@ public class UserService implements IUserService{
         UserEntity userFromToken = userRepository.findByDni(jwtService.getDniFromToken(jwtFilter.getToken()))
             .orElseThrow(() -> new RuntimeException("Invalid token"));
 
+        if ((userEntity.getPermissionStrings().contains(Permissions.dev.name()) && userFromToken.getPermissionStrings().contains(Permissions.super_admin.name()) || 
+            userEntity.getPermissionStrings().contains(Permissions.super_admin.name()) && userFromToken.getPermissionStrings().contains(Permissions.employee.name()))) {
+            throw new RuntimeException("Unauthorized to update user");
+        }
+
         boolean isSameUser = userEntity.getId() == userFromToken.getId();
         boolean hasManageUsersPermission = userFromToken.getPermissionStrings()
             .contains(Permissions.manage_users.name());
