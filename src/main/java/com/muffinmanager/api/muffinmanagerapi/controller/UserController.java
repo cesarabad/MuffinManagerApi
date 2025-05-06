@@ -154,4 +154,16 @@ public class UserController {
             return ResponseEntity.status(500).build();
         }
     }
+
+    @DeleteMapping("/deleteUser/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable int id) {
+        try {
+            userService.deleteUser(id);
+            messagingTemplate.convertAndSend("/topic" + BASE_URL, id);
+            messagingTemplate.convertAndSend("/topic" + BASE_URL + "/" + id, id);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(500).build();
+        }
+    }
 }

@@ -22,5 +22,6 @@ public interface IUserService {
     public void toggleDisableUser(int id);
     public AvailableUserPermissionsDto getAvailableUserPermissions();
     public GroupEntity save(GroupEntity groupEntity);
+    public void deleteUser(int id);
     public void deleteGroup(int id);
 }
