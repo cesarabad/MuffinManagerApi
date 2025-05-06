@@ -57,6 +57,7 @@ public class MovementStockController {
             case Delete, Checked -> {}
         }
         messagingTemplate.convertAndSend("/topic" + BASE_URL, movementStockDto);
+        messagingTemplate.convertAndSend("/topic/user/" + user.getId(), 1);
         return ResponseEntity.ok(createdEntity);
     }
 
@@ -83,6 +84,7 @@ public class MovementStockController {
             case Checked -> {}
         }
         messagingTemplate.convertAndSend("/topic" + BASE_URL, movementStockDto);
+        messagingTemplate.convertAndSend("/topic/user/" + user.getId(), 1);
         return movementStockDto;
     }
 

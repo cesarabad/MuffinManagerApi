@@ -3,6 +3,7 @@ package com.muffinmanager.api.muffinmanagerapi.controller;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,11 +24,15 @@ import com.muffinmanager.api.muffinmanagerapi.model.User.dto.UserSafeDto;
 import com.muffinmanager.api.muffinmanagerapi.service.auth.IUserService;
 
 @RestController
-@RequestMapping("/user")
+@RequestMapping(UserController.BASE_URL)
 public class UserController {
 
+    private static final String BASE_URL = "/user";
+    private static final String GROUP_TOPIC = "/topic/group";
     @Autowired
     private IUserService userService;
+    @Autowired
+    SimpMessagingTemplate messagingTemplate;
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
@@ -56,6 +61,8 @@ public class UserController {
             LoginResponse response = userService.register(request);
             if (response == null) {
                 return ResponseEntity.noContent().build();
+            } else {
+                messagingTemplate.convertAndSend("/topic" + BASE_URL, response);
             }
             return ResponseEntity.ok(response);
         } catch (Exception e) {
@@ -66,6 +73,9 @@ public class UserController {
     @PostMapping("/update")
     public ResponseEntity<LoginResponse> updateProfile(@RequestBody UpdateUserDto updatedUserDto) {
         try {
+            LoginResponse response = userService.update(updatedUserDto);
+            messagingTemplate.convertAndSend("/topic" + BASE_URL, updatedUserDto.getId());
+            messagingTemplate.convertAndSend("/topic" + BASE_URL + "/" + updatedUserDto.getId(), response != null);
             return ResponseEntity.ok(userService.update(updatedUserDto));
         } catch (Exception e) {
             return ResponseEntity.status(500).body(null);
@@ -102,6 +112,8 @@ public class UserController {
     public ResponseEntity<Void> toggleDisableUser(@PathVariable int id) {
         try {
             userService.toggleDisableUser(id);
+            messagingTemplate.convertAndSend("/topic" + BASE_URL, id);
+            messagingTemplate.convertAndSend("/topic" + BASE_URL + "/" + id, id);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.status(500).build();
@@ -120,7 +132,13 @@ public class UserController {
     @PostMapping("/saveGroup")
     public ResponseEntity<GroupEntity> saveGroup(@RequestBody GroupEntity groupEntity) {
         try {
-            return ResponseEntity.ok(userService.save(groupEntity));
+            GroupEntity savedGroup = userService.save(groupEntity);
+            if (savedGroup != null) {
+                messagingTemplate.convertAndSend(GROUP_TOPIC, savedGroup);
+            } else {
+                return ResponseEntity.badRequest().build();
+            }
+            return ResponseEntity.ok(savedGroup);
         } catch (Exception e) {
             return ResponseEntity.status(500).build();
         }
@@ -130,6 +148,7 @@ public class UserController {
     public ResponseEntity<Void> deleteGroup(@PathVariable int id) {
         try {
             userService.deleteGroup(id);
+            messagingTemplate.convertAndSend(GROUP_TOPIC, id);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.status(500).build();

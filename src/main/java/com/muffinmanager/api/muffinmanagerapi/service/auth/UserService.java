@@ -207,6 +207,5 @@ public class UserService implements IUserService{
     public void deleteGroup(int id) {
         GroupEntity group = groupRepository.findById(id).orElseThrow(() -> new RuntimeException("Group not found"));
         groupRepository.delete(group);
-        // Send ws message to update user modifyed
     }
 }
