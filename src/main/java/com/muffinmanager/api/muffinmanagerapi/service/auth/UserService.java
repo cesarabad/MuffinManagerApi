@@ -128,7 +128,7 @@ public class UserService implements IUserService{
                 userEntity.setPassword(passwordEncoder.encode(updatedUserDto.getNewPassword()));
             }
             UserEntity savedUser = userRepository.save(userEntity);
-            return isSameUser ? generateLoginResponse(savedUser) : null;
+            return generateLoginResponse(savedUser);
             // Send ws message to update user modifyed
         }
 
