@@ -14,6 +14,7 @@ import com.muffinmanager.api.muffinmanagerapi.model.User.dto.UserSafeDto;
 
 public interface IUserService {
     public LoginResponse login(LoginRequest request);
+    public LoginResponse refreshToken(String token);
     public LoginResponse register(RegisterRequest request);
     public List<UserSafeDto> getAllUsers();
     public LoginResponse update(UpdateUserDto userSafeDto);

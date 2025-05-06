@@ -214,4 +214,11 @@ public class UserService implements IUserService{
         UserEntity user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
         userRepository.delete(user);
     }
+
+    @Override
+    public LoginResponse refreshToken(String token) {
+        String dni = jwtService.getDniFromToken(token);
+        UserEntity user = userRepository.findByDni(dni).orElseThrow(() -> new RuntimeException("User not found"));
+        return generateLoginResponse(user);
+    }
 }

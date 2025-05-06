@@ -62,6 +62,20 @@ public class UserController {
         }
     }
 
+    @PostMapping("/refreshToken")
+    public ResponseEntity<LoginResponse> refreshToken() {
+        try {
+            String token = jwtFilter.getToken();
+            if (token == null || token.isEmpty()) {
+                return ResponseEntity.badRequest().body(null);
+            }
+            LoginResponse response = userService.refreshToken(token);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(null);
+        }
+    }
+
     @PostMapping("/register")
     public ResponseEntity<LoginResponse> register(@RequestBody RegisterRequest request) {
         try {
